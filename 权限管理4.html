@@ -1,0 +1,557 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;
+  --bg2:#f7f6f3;
+  --bg3:#f0efe9;
+  --border:#d8d6ce;
+  --border2:#c8c6bc;
+  --text:#1a1a18;
+  --text2:#6b6960;
+  --text3:#9c9a90;
+  --blue:#185FA5;
+  --blue-bg:#E6F1FB;
+  --teal:#085041;
+  --teal-bg:#E1F5EE;
+  --coral:#712B13;
+  --coral-bg:#FAECE7;
+  --amber:#633806;
+  --amber-bg:#FAEEDA;
+  --green:#27500A;
+  --green-bg:#EAF3DE;
+  --purple:#3C3489;
+  --purple-bg:#EEEDFE;
+  --red:#A32D2D;
+  --red-bg:#FCEBEB;
+  --success:#2d7a3a;
+  --danger:#A32D2D;
+  --sidebar-w:192px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;color:var(--text);background:var(--bg3)}
+.app{display:grid;grid-template-rows:46px 1fr;height:820px;border:1px solid var(--border2);border-radius:10px;overflow:hidden;background:var(--bg)}
+.topbar{display:flex;align-items:center;border-bottom:1.5px solid var(--border2);padding:0 8px;gap:0;background:var(--bg)}
+.tb{padding:0 16px;height:46px;border:none;background:none;font-size:13px;color:var(--text2);cursor:pointer;border-bottom:2.5px solid transparent;font-family:inherit;white-space:nowrap;transition:color .15s}
+.tb.on{color:var(--text);font-weight:500;border-bottom-color:var(--text)}
+.tb:hover:not(.on){color:var(--text)}
+.body{display:grid;grid-template-columns:var(--sidebar-w) 1fr;overflow:hidden;height:100%}
+.sb{border-right:1.5px solid var(--border2);overflow-y:auto;display:flex;flex-direction:column;background:var(--bg2)}
+.sb-lbl{font-size:10px;color:var(--text3);padding:10px 12px 3px;letter-spacing:.5px;text-transform:uppercase;font-weight:600;flex-shrink:0}
+.sn{display:flex;align-items:center;gap:4px;padding:6px 12px;cursor:pointer;font-size:12px;color:var(--text2);position:relative;transition:background .1s;user-select:none;flex-shrink:0}
+.sn:hover{background:var(--bg3);color:var(--text)}
+.sn.on{background:var(--bg3);color:var(--text);font-weight:500}
+.sn.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2.5px;background:var(--text);border-radius:0 2px 2px 0}
+.sn-tog{width:12px;height:12px;flex-shrink:0;font-size:8px;color:var(--text3);display:flex;align-items:center;justify-content:center}
+.sb-add{padding:6px 10px;flex-shrink:0}
+.sb-foot{flex:1}
+.sb-div{height:1px;background:var(--border);margin:5px 10px}
+.main{overflow-y:auto;background:var(--bg)}
+.panel{display:none}
+.panel.on{display:block}
+.ph{padding:16px 20px 12px;border-bottom:1.5px solid var(--border2);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;background:var(--bg)}
+.ph-t{font-size:14px;font-weight:600;color:var(--text)}
+.ph-s{font-size:11.5px;color:var(--text2);margin-top:3px}
+.sec{padding:14px 20px;border-bottom:1px solid var(--border)}
+.sec:last-child{border-bottom:none}
+.sec-t{font-size:12px;font-weight:600;margin-bottom:10px;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg);font-size:12px;color:var(--text);cursor:pointer;font-family:inherit;transition:background .1s;white-space:nowrap;flex-shrink:0;font-weight:500}
+.btn:hover{background:var(--bg2)}
+.btn-p{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn-p:hover{opacity:.85}
+.btn-d{color:var(--danger);border-color:#f0c0c0}
+.btn-d:hover{background:var(--red-bg)}
+.btn-g{border-color:transparent}
+.btn-g:hover{background:var(--bg2)}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10.5px;font-weight:600;white-space:nowrap}
+.tag-p{background:var(--purple-bg);color:var(--purple)}
+.tag-t{background:var(--teal-bg);color:var(--teal)}
+.tag-c{background:var(--coral-bg);color:var(--coral)}
+.tag-a{background:var(--amber-bg);color:var(--amber)}
+.tag-g{background:var(--green-bg);color:var(--green)}
+.tag-b{background:var(--blue-bg);color:var(--blue)}
+.tag-gray{background:var(--bg3);color:var(--text2)}
+.tag-on{background:var(--teal-bg);color:var(--teal)}
+.tag-off{background:var(--bg3);color:var(--text3)}
+.mg{display:flex;flex-direction:column;gap:6px}
+.mmod{border:1px solid var(--border);border-radius:7px;overflow:hidden}
+.mmod-h{padding:7px 12px;background:var(--bg2);display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text);border-bottom:1px solid var(--border)}
+.mmod-pages{display:flex;flex-direction:column}
+.mpage{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 30px;font-size:12px;color:var(--text2);border-top:1px solid var(--border)}
+.mpage:first-child{border-top:none}
+.ck{width:13px;height:13px;cursor:pointer;accent-color:var(--text);flex-shrink:0}
+.atbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.atbl th{text-align:left;padding:7px 10px;color:var(--text2);font-weight:500;font-size:11px;border-bottom:1.5px solid var(--border2);background:var(--bg2)}
+.atbl td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.atbl tr:last-child td{border-bottom:none}
+.atbl tr:hover td{background:var(--bg2)}
+.av{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;background:var(--teal-bg);color:var(--teal)}
+.sdot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0}
+.notice{font-size:11px;color:var(--text2);padding:6px 10px;background:var(--blue-bg);border-left:2.5px solid var(--blue);margin-bottom:10px;border-radius:0 4px 4px 0;color:var(--blue)}
+.empty{padding:40px;text-align:center;color:var(--text3);font-size:12px}
+.bcr{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);padding:8px 20px 0}
+.bcr .sep{color:var(--text3)}
+.rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rc{border:1px solid var(--border);border-radius:7px;padding:10px 12px;cursor:pointer;transition:background .1s;background:var(--bg)}
+.rc:hover{background:var(--bg2)}
+.rc.on{border-color:var(--text);background:var(--bg2)}
+.acct-filters{display:flex;gap:8px;align-items:center;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.search-i{padding:5px 10px;border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);width:180px}
+.search-i:focus{outline:none;border-color:#888}
+.role-split{display:grid;grid-template-columns:180px 1fr;height:100%}
+.role-list-pane{border-right:1.5px solid var(--border2);overflow-y:auto;background:var(--bg2)}
+.role-detail-pane{overflow-y:auto;background:var(--bg)}
+.ritem{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s}
+.ritem:hover{background:var(--bg3)}
+.ritem.on{background:var(--bg3)}
+.ritem.on::after{content:'';position:absolute;right:0;top:0;bottom:0;width:2.5px;background:var(--text)}
+.ritem{position:relative}
+.rav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.role-list-header{padding:10px 14px 8px;border-bottom:1.5px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:var(--bg)}
+
+/* ===== MODAL – fully opaque, no transparency ===== */
+.overlay{display:none;position:absolute;inset:0;z-index:50;align-items:flex-start;justify-content:center;padding-top:36px;background:rgba(30,28,24,.52)}
+.overlay.on{display:flex}
+.modal{background:#ffffff;border-radius:10px;border:1.5px solid var(--border2);width:480px;max-width:96%;max-height:82vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-h{padding:16px 18px 13px;border-bottom:1.5px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#f7f6f3}
+.modal-ht{font-size:14px;font-weight:600;color:#1a1a18}
+.modal-x{width:24px;height:24px;border:none;background:none;cursor:pointer;font-size:16px;color:#6b6960;display:flex;align-items:center;justify-content:center;border-radius:5px;line-height:1}
+.modal-x:hover{background:#e8e7e0}
+.modal-b{padding:16px 18px;flex:1;overflow-y:auto;background:#ffffff}
+.modal-f{padding:12px 18px;border-top:1.5px solid var(--border2);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;background:#f7f6f3}
+.fr{margin-bottom:13px}
+.fr:last-child{margin-bottom:0}
+.fl{font-size:11.5px;color:#6b6960;margin-bottom:5px;display:block;font-weight:600}
+.fl .req{color:#A32D2D}
+.fi{width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:6px;font-size:12.5px;font-family:inherit;background:#ffffff;color:#1a1a18;transition:border-color .15s}
+.fi:focus{outline:none;border-color:#888}
+.fi-sel{width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:6px;font-size:12.5px;font-family:inherit;background:#ffffff;color:#1a1a18}
+.fi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:10.5px;color:#9c9a90;margin-top:3px}
+.radio-row{display:flex;gap:16px;margin-top:5px}
+.radio-item{display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer;color:#1a1a18}
+.radio-item input{accent-color:#1a1a18;width:13px;height:13px}
+.mdiv{height:1px;background:var(--border);margin:13px 0}
+</style>
+
+<div class="app" id="APP">
+<div class="topbar">
+  <button class="tb on" onclick="goTab('func')">功能管理</button>
+  <button class="tb" onclick="goTab('org')">组织架构</button>
+  <button class="tb" onclick="goTab('role')">角色管理</button>
+  <button class="tb" onclick="goTab('acct')">账户管理</button>
+</div>
+<div class="body">
+  <div class="sb" id="SB"></div>
+  <div class="main" id="MAIN">
+    <div class="panel on" id="p-func"></div>
+    <div class="panel" id="p-org"></div>
+    <div class="panel" id="p-role"></div>
+    <div class="panel" id="p-acct"></div>
+  </div>
+</div>
+
+<!-- Modal 部门 -->
+<div class="overlay" id="ov-dept" onclick="if(event.target===this)cm('dept')">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-h"><span class="modal-ht" id="mh-dept">新增部门</span><button class="modal-x" onclick="cm('dept')">✕</button></div>
+  <div class="modal-b">
+    <div class="fr"><label class="fl">部门名称 <span class="req">*</span></label><input class="fi" id="f-dept-name" placeholder="请输入部门名称"></div>
+    <div class="fr"><label class="fl">所属上级</label><select class="fi-sel fi" id="f-dept-parent"><option value="">— 顶级（集团根节点）—</option></select><div class="hint">不选则作为顶级节点</div></div>
+    <div class="fr"><label class="fl">部门描述</label><input class="fi" id="f-dept-desc" placeholder="简述部门职能（选填）"></div>
+  </div>
+  <div class="modal-f"><button class="btn" onclick="cm('dept')">取消</button><button class="btn btn-p" onclick="saveDept()">确认保存</button></div>
+</div></div>
+
+<!-- Modal 角色 -->
+<div class="overlay" id="ov-role" onclick="if(event.target===this)cm('role')">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-h"><span class="modal-ht" id="mh-role">新建角色</span><button class="modal-x" onclick="cm('role')">✕</button></div>
+  <div class="modal-b">
+    <div class="fr"><label class="fl">角色名称 <span class="req">*</span></label><input class="fi" id="f-role-name" placeholder="如：销售总监、研发工程师"></div>
+    <div class="fr"><label class="fl">角色职级</label>
+      <div class="radio-row">
+        <label class="radio-item"><input type="radio" name="rlv" value="high">高级</label>
+        <label class="radio-item"><input type="radio" name="rlv" value="mid" checked>中级</label>
+        <label class="radio-item"><input type="radio" name="rlv" value="low">普通</label>
+      </div>
+    </div>
+    <div class="fr"><label class="fl">职责描述</label><textarea class="fi" id="f-role-desc" placeholder="简述该角色的主要职责与使用场景" style="height:66px;resize:none"></textarea></div>
+  </div>
+  <div class="modal-f"><button class="btn" onclick="cm('role')">取消</button><button class="btn btn-p" onclick="saveRole()">确认创建</button></div>
+</div></div>
+
+<!-- Modal 账户 -->
+<div class="overlay" id="ov-acct" onclick="if(event.target===this)cm('acct')">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-h"><span class="modal-ht" id="mh-acct">新建账户</span><button class="modal-x" onclick="cm('acct')">✕</button></div>
+  <div class="modal-b">
+    <div class="fi-row">
+      <div class="fr"><label class="fl">姓名 <span class="req">*</span></label><input class="fi" id="f-an" placeholder="真实姓名"></div>
+      <div class="fr"><label class="fl">工号</label><input class="fi" id="f-ano" placeholder="如：LST-0012"></div>
+    </div>
+    <div class="fi-row">
+      <div class="fr"><label class="fl">登录账号 <span class="req">*</span></label><input class="fi" id="f-al" placeholder="字母/数字组合"></div>
+      <div class="fr"><label class="fl">手机号</label><input class="fi" id="f-aph" placeholder="用于接收验证码"></div>
+    </div>
+    <div class="fr"><label class="fl">邮箱</label><input class="fi" id="f-ae" placeholder="企业邮箱地址"></div>
+    <div class="mdiv"></div>
+    <div class="fr"><label class="fl">所属部门 <span class="req">*</span></label><select class="fi-sel fi" id="f-adept" onchange="refreshAR()"></select></div>
+    <div class="fr"><label class="fl">分配角色</label><select class="fi-sel fi" id="f-arole"></select></div>
+    <div class="mdiv"></div>
+    <div class="fr"><label class="fl">账户状态</label>
+      <div class="radio-row">
+        <label class="radio-item"><input type="radio" name="ast" value="active" checked>启用</label>
+        <label class="radio-item"><input type="radio" name="ast" value="disabled">停用</label>
+      </div>
+    </div>
+    <div class="fr"><label class="fl">备注</label><input class="fi" id="f-anote" placeholder="选填"></div>
+  </div>
+  <div class="modal-f"><button class="btn" onclick="cm('acct')">取消</button><button class="btn btn-p" onclick="saveAcct()">确认保存</button></div>
+</div></div>
+
+</div>
+<script>
+const MODS=[
+  {id:'cockpit',name:'驾驶舱',pages:[{id:'p_c1',name:'行业趋势总览'},{id:'p_c2',name:'平台运行概况'}]},
+  {id:'chain',name:'产业链洞察',pages:[{id:'p_ch1',name:'产业链全景图'},{id:'p_ch2',name:'产业链环节详情'}]},
+  {id:'customer',name:'客情洞察',pages:[{id:'p_cu1',name:'国内市场分析'},{id:'p_cu2',name:'海外市场分析'},{id:'p_cu3',name:'招投标商机查询'},{id:'p_cu4',name:'企业监控'},{id:'p_cu5',name:'客户反馈与舆情分析'}]},
+  {id:'compete',name:'竞对监测',pages:[{id:'p_co1',name:'竞品监测'},{id:'p_co2',name:'企业对标分析'},{id:'p_co3',name:'价格监测看板'},{id:'p_co4',name:'市场监测看板'},{id:'p_co5',name:'创新监测看板'}]},
+  {id:'rnd',name:'研发创新',pages:[{id:'p_r1',name:'技术情报洞察'},{id:'p_r2',name:'研发方案推演'},{id:'p_r3',name:'专利申请支持'},{id:'p_r4',name:'侵权风险防控'},{id:'p_r5',name:'专利成果分析'},{id:'p_r6',name:'研发知识库'}]},
+  {id:'strategy',name:'战略研判',pages:[{id:'p_s1',name:'产业与技术洞察'},{id:'p_s2',name:'市场风险分析'},{id:'p_s3',name:'市场机遇识别'},{id:'p_s4',name:'政策监控'},{id:'p_s5',name:'竞对企业动作跟踪'},{id:'p_s6',name:'技术趋势分析'}]},
+  {id:'solution',name:'解决方案',pages:[{id:'p_sl1',name:'场景化案例库'},{id:'p_sl2',name:'案例上传记录'},{id:'p_sl3',name:'客诉案例库'}]},
+  {id:'infomgmt',name:'信息管理',pages:[{id:'p_i1',name:'技术需求管理'},{id:'p_i2',name:'客诉反馈信息管理'},{id:'p_i3',name:'数据维护'},{id:'p_i4',name:'手机端-客户反馈提报'}]},
+  {id:'profile',name:'个人中心',pages:[{id:'p_pf1',name:'个人基本资料'},{id:'p_pf2',name:'账户设置'},{id:'p_pf3',name:'个性化设置'}]}
+];
+const ALLPG=MODS.flatMap(m=>m.pages.map(p=>({...p,modId:m.id})));
+let FE={};MODS.forEach(m=>{FE[m.id]=true;m.pages.forEach(p=>{FE[p.id]=true;});});
+
+let depts=[
+  {id:'d0',name:'蓝山屯河集团',parent:null,desc:'集团总部',perms:{}},
+  {id:'d1',name:'管理层',parent:'d0',desc:'企业高层管理，统筹全局决策',perms:{cockpit:['p_c1','p_c2'],chain:['p_ch1','p_ch2'],customer:['p_cu1','p_cu2','p_cu3'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6'],rnd:['p_r1','p_r5'],solution:['p_sl1'],profile:['p_pf1','p_pf2','p_pf3']}},
+  {id:'d2',name:'研究院',parent:'d0',desc:'负责产品研发与技术创新',perms:{cockpit:['p_c1','p_c2'],rnd:['p_r1','p_r2','p_r3','p_r4','p_r5','p_r6'],chain:['p_ch1','p_ch2'],strategy:['p_s1','p_s6'],solution:['p_sl1','p_sl2'],infomgmt:['p_i1'],profile:['p_pf1','p_pf2','p_pf3']}},
+  {id:'d3',name:'战略发展部',parent:'d0',desc:'负责战略规划与竞争情报分析',perms:{cockpit:['p_c1','p_c2'],chain:['p_ch1','p_ch2'],customer:['p_cu1','p_cu2'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6'],profile:['p_pf1','p_pf2','p_pf3']}},
+  {id:'d4',name:'法务部',parent:'d0',desc:'负责法律合规与知识产权保护',perms:{cockpit:['p_c1'],rnd:['p_r3','p_r4','p_r5'],strategy:['p_s4'],infomgmt:['p_i2'],profile:['p_pf1','p_pf2','p_pf3']}},
+  {id:'d5',name:'茵创公司',parent:'d0',desc:'旗下子公司，专注生物降解材料研发',perms:{cockpit:['p_c1','p_c2'],customer:['p_cu1','p_cu3','p_cu4','p_cu5'],compete:['p_co1','p_co3'],solution:['p_sl1','p_sl2','p_sl3'],infomgmt:['p_i2','p_i4'],profile:['p_pf1','p_pf2','p_pf3']}},
+  {id:'d6',name:'聚酯公司',parent:'d0',desc:'旗下子公司，专注聚酯材料生产',perms:{cockpit:['p_c1','p_c2'],chain:['p_ch1'],customer:['p_cu1','p_cu3'],compete:['p_co1','p_co3','p_co4'],solution:['p_sl1'],infomgmt:['p_i3'],profile:['p_pf1','p_pf2','p_pf3']}},
+  {id:'d7',name:'营销中心',parent:'d0',desc:'负责市场开拓与客户管理',perms:{cockpit:['p_c1','p_c2'],customer:['p_cu1','p_cu2','p_cu3','p_cu4','p_cu5'],compete:['p_co1','p_co3','p_co4'],solution:['p_sl1','p_sl2','p_sl3'],infomgmt:['p_i2','p_i4'],profile:['p_pf1','p_pf2','p_pf3']}}
+];
+
+const COLORS=['p','t','c','a','g','b'];let rci=0;
+let roles=[
+  {id:'r0',name:'平台管理员',dept:'d0',col:'p',desc:'全平台最高权限',w:100,perms:{}},
+  {id:'r1',name:'总经理',dept:'d1',col:'p',desc:'管理层最高决策者',w:95,perms:{cockpit:['p_c1','p_c2'],chain:['p_ch1','p_ch2'],customer:['p_cu1','p_cu2','p_cu3'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6'],rnd:['p_r1','p_r5'],solution:['p_sl1'],profile:['p_pf1','p_pf2','p_pf3']}},
+  {id:'r2',name:'研发总监',dept:'d2',col:'t',desc:'统筹研发方向与知识产权',w:80,perms:{cockpit:['p_c1','p_c2'],rnd:['p_r1','p_r2','p_r3','p_r4','p_r5','p_r6'],chain:['p_ch1','p_ch2'],strategy:['p_s1','p_s6'],profile:['p_pf1','p_pf2','p_pf3']}},
+  {id:'r3',name:'研发工程师',dept:'d2',col:'t',desc:'负责技术研发与专利分析',w:55,perms:{rnd:['p_r1','p_r2','p_r5','p_r6'],cockpit:['p_c1'],profile:['p_pf1','p_pf3']}},
+  {id:'r4',name:'战略分析师',dept:'d3',col:'a',desc:'市场与竞争情报分析',w:65,perms:{strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],cockpit:['p_c1','p_c2'],profile:['p_pf1','p_pf2','p_pf3']}},
+  {id:'r5',name:'知识产权专员',dept:'d4',col:'g',desc:'专利申请与侵权风险管控',w:50,perms:{rnd:['p_r3','p_r4','p_r5'],strategy:['p_s4'],profile:['p_pf1','p_pf2','p_pf3']}},
+  {id:'r6',name:'市场专员',dept:'d7',col:'c',desc:'负责市场调研与客户开拓',w:45,perms:{customer:['p_cu1','p_cu3','p_cu5'],compete:['p_co1'],solution:['p_sl1'],cockpit:['p_c1'],profile:['p_pf1','p_pf3']}}
+];
+
+let accounts=[
+  {id:'a1',name:'周总',login:'zhou.zong',no:'LST-0001',phone:'138****9900',email:'zhou@lsth.com',dept:'d1',role:'r1',status:'active'},
+  {id:'a2',name:'李晓燕',login:'li.xiaoyan',no:'LST-0012',phone:'139****0034',email:'li.xiaoyan@lsth.com',dept:'d2',role:'r2',status:'active'},
+  {id:'a3',name:'张明',login:'zhang.ming',no:'LST-0011',phone:'138****0012',email:'zhang.ming@lsth.com',dept:'d2',role:'r3',status:'active'},
+  {id:'a4',name:'刘洋',login:'liu.yang',no:'LST-0031',phone:'135****0099',email:'liu.yang@lsth.com',dept:'d3',role:'r4',status:'active'},
+  {id:'a5',name:'赵丽',login:'zhao.li',no:'LST-0041',phone:'132****0011',email:'zhao.li@lsth.com',dept:'d4',role:'r5',status:'active'},
+  {id:'a6',name:'王建国',login:'wang.jg',no:'LST-0021',phone:'136****0056',email:'wang.jg@lsth.com',dept:'d5',role:null,status:'active'},
+  {id:'a7',name:'陈晨',login:'chen.chen',no:'LST-0022',phone:'137****0078',email:'chen.chen@lsth.com',dept:'d6',role:null,status:'active'},
+  {id:'a8',name:'孙伟',login:'sun.wei',no:'LST-0051',phone:'133****0022',email:'sun.wei@lsth.com',dept:'d7',role:'r6',status:'active'}
+];
+
+let curTab='func',curFuncMod=null,curOrgDept=null,curRoleDept='all',curRole=null,curRoleView='list',curAcctDept='all';
+let edDept=null,edRole=null,edAcct=null;
+
+const D=id=>depts.find(d=>d.id===id);
+const R=id=>roles.find(r=>r.id===id);
+const dn=id=>{const d=D(id);return d?d.name:'—';};
+function ch(pid){return depts.filter(d=>d.parent===pid);}
+function flatD(){const r=[];function w(pid,dep){ch(pid).forEach(d=>{r.push({...d,dep});w(d.id,dep+1);});}w(null,0);return r;}
+function subIds(id){const r=[id];ch(id).forEach(c=>{r.push(...subIds(c.id));});return r;}
+function ancestors(id){const p=[];let c=D(id);while(c){p.unshift(c);c=D(c.parent);}return p;}
+function getAvail(did){
+  const d=D(did);if(!d)return{};
+  if(!d.parent){const a={};MODS.forEach(m=>{if(FE[m.id])a[m.id]=m.pages.filter(p=>FE[p.id]).map(p=>p.id);});return a;}
+  return d.perms||{};
+}
+const TAGCLS={p:'tag-p',t:'tag-t',c:'tag-c',a:'tag-a',g:'tag-g',b:'tag-b'};
+
+function goTab(t){
+  curTab=t;
+  document.querySelectorAll('.tb').forEach((b,i)=>b.classList.toggle('on',['func','org','role','acct'][i]===t));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p-'+t).classList.add('on');
+  rSB();rMain();
+}
+
+function rSB(){
+  const sb=document.getElementById('SB');
+  if(curTab==='func'){
+    sb.innerHTML='<div class="sb-lbl">功能模块</div>'+MODS.map(m=>{
+      const cnt=m.pages.filter(p=>FE[p.id]&&FE[m.id]).length;
+      return`<div class="sn${curFuncMod===m.id?' on':''}" onclick="selFM('${m.id}')"><span class="sn-tog">&nbsp;</span><span style="flex:1">${m.name}</span><span style="font-size:10px;color:var(--text3)">${cnt}/${m.pages.length}</span></div>`;
+    }).join('')+'<div class="sb-foot"></div>';return;
+  }
+  if(curTab==='org'){
+    sb.innerHTML='<div class="sb-lbl">组织架构</div>'+rTree('org',null,0)+`<div class="sb-add"><button class="btn btn-g" style="width:100%;justify-content:center;font-size:11.5px;color:var(--text2)" onclick="om('dept')">+ 新增部门</button></div><div class="sb-foot"></div>`;return;
+  }
+  if(curTab==='role'){
+    sb.innerHTML=`<div class="sb-lbl">角色管理</div>
+    <div class="sn on"><span style="padding-left:2px;font-size:12px">全部角色</span></div>
+    <div class="sb-add"><button class="btn btn-g" style="width:100%;justify-content:center;font-size:11.5px;color:var(--text2)" onclick="om('role')">+ 新建角色</button></div><div class="sb-foot"></div>`;return;
+  }
+  if(curTab==='acct'){
+    sb.innerHTML=`<div class="sb-lbl">组织架构</div>
+    <div class="sn${curAcctDept==='all'?' on':''}" onclick="selAD('all')"><span style="padding-left:2px;font-size:12px">全部账户</span></div>
+    <div class="sn${curAcctDept==='d0'?' on':''}" onclick="selAD('d0')" style="padding-left:12px"><span class="sn-tog">▾</span><span style="font-size:12px">蓝山屯河集团</span></div>`+rTree('acct','d0',1)+'<div class="sb-foot"></div>';return;
+  }
+}
+
+function rTree(mode,pid,dep){
+  return ch(pid).map(d=>{
+    const hasC=ch(d.id).length>0;
+    let sel=false,oc='';
+    if(mode==='org'){sel=curOrgDept===d.id;oc=`selOD('${d.id}')`;}
+    if(mode==='role'){sel=curRoleDept===d.id;oc=`selRD('${d.id}')`;}
+    if(mode==='acct'){sel=curAcctDept===d.id;oc=`selAD('${d.id}')`;}
+    return`<div class="sn${sel?' on':''}" style="padding-left:${12+dep*13}px" onclick="${oc}">
+      <span class="sn-tog">${hasC?'▾':''}</span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${d.name}</span>
+    </div>${rTree(mode,d.id,dep+1)}`;
+  }).join('');
+}
+
+function selFM(id){curFuncMod=id;rSB();const el=document.getElementById('fs-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function selOD(id){curOrgDept=id;rSB();rMain();}
+function selRD(id){curRoleDept=id;curRole=null;curRoleView='list';rSB();rMain();}
+function selAD(id){curAcctDept=id;rSB();rMain();}
+
+function rMain(){
+  if(curTab==='func')rFunc();
+  if(curTab==='org')rOrg();
+  if(curTab==='role')rRole();
+  if(curTab==='acct')rAcct();
+}
+
+function rFunc(){
+  const el=document.getElementById('p-func');
+  let h=`<div class="ph"><div><div class="ph-t">功能管理</div><div class="ph-s">启用或停用平台功能模块及具体页面，停用后对所有用户不可见</div></div></div><div class="sec"><div class="mg">`;
+  MODS.forEach(m=>{
+    const mon=FE[m.id];const enC=m.pages.filter(p=>FE[p.id]).length;
+    h+=`<div class="mmod" id="fs-${m.id}"><div class="mmod-h"><input class="ck" type="checkbox" ${mon?'checked':''} onchange="togMod('${m.id}',this.checked)"><span style="flex:1">${m.name}</span><span style="font-size:10.5px;color:var(--text3);margin-right:5px">${enC}/${m.pages.length} 已启用</span><span class="tag ${mon?'tag-on':'tag-off'}">${mon?'启用':'停用'}</span></div><div class="mmod-pages">`;
+    m.pages.forEach(p=>{const pon=FE[p.id]&&mon;h+=`<div class="mpage" style="${!mon?'opacity:.4;pointer-events:none':''}"><input class="ck" type="checkbox" ${pon?'checked':''} ${!mon?'disabled':''} onchange="togPg('${p.id}',this.checked)"><span style="flex:1">${p.name}</span><span class="tag ${pon?'tag-on':'tag-off'}" style="font-size:10px">${pon?'启用':'停用'}</span></div>`;});
+    h+='</div></div>';
+  });
+  h+='</div></div>';el.innerHTML=h;
+}
+function togMod(id,on){FE[id]=on;rFunc();rSB();}
+function togPg(id,on){FE[id]=on;rFunc();rSB();}
+
+function rOrg(){
+  const el=document.getElementById('p-org');
+  if(!curOrgDept){el.innerHTML='<div class="empty">← 点击左侧部门节点查看详情</div>';return;}
+  const d=D(curOrgDept);if(!d){el.innerHTML='<div class="empty">← 点击左侧部门节点查看详情</div>';return;}
+  const isRoot=!d.parent;const path=ancestors(d.id);
+  const dAccts=accounts.filter(a=>a.dept===d.id);
+  const bcr=path.map((x,i)=>`<span style="${i===path.length-1?'font-weight:600;color:var(--text)':''}">${x.name}</span>${i<path.length-1?'<span class="sep"> / </span>':''}`).join('');
+
+  let h=`<div class="bcr">${bcr}</div>
+  <div class="ph"><div><div class="ph-t">${d.name}</div><div class="ph-s">${d.desc||''} · ${dAccts.length} 个账户</div></div>
+  <div style="display:flex;gap:6px"><button class="btn" onclick="om('dept','${d.id}')">编辑</button>${!isRoot?`<button class="btn btn-d" onclick="delDept('${d.id}')">删除</button>`:''}</div></div>`;
+  h+=`<div class="sec"><div class="sec-t">部门成员</div>`;
+  if(dAccts.length){h+=`<table class="atbl"><thead><tr><th style="width:30px"></th><th>姓名</th><th>账号</th><th>角色</th><th style="width:55px">状态</th></tr></thead><tbody>`;dAccts.forEach(a=>{const rv=R(a.role);h+=`<tr><td><div class="av">${a.name.slice(0,2)}</div></td><td style="font-weight:600">${a.name}</td><td style="color:var(--text2);font-size:11.5px">${a.login}</td><td>${rv?`<span class="tag ${TAGCLS[rv.col]||'tag-gray'}">${rv.name}</span>`:''}</td><td><span style="display:inline-flex;align-items:center;font-size:11px"><span class="sdot" style="background:${a.status==='active'?'var(--success)':'var(--text3)'}"></span>${a.status==='active'?'启用':'停用'}</span></td></tr>`;});h+='</tbody></table>';}
+  else h+=`<div style="font-size:11.5px;color:var(--text3)">暂无成员</div>`;
+  h+='</div>';
+  el.innerHTML=h;
+}
+function togDM(did,mid,on){const d=D(did);if(!d)return;const pp=getAvail(d.parent)[mid]||[];if(on)d.perms[mid]=pp.slice();else delete d.perms[mid];document.querySelectorAll(`input[data-dd="${did}"][data-mod="${mid}"]`).forEach(c=>c.checked=on);}
+function saveDPerms(did){
+  const d=D(did);if(!d)return;const pA=getAvail(d.parent);d.perms={};
+  MODS.forEach(m=>{const pp=(pA[m.id]||[]).filter(pid=>{const c=document.querySelector(`input[data-dd="${did}"][data-mod="${m.id}"][data-pg="${pid}"]`);return c&&c.checked;});if(pp.length)d.perms[m.id]=pp;});
+  const btn=event.target;btn.textContent='已保存 ✓';btn.style.background='var(--success)';setTimeout(()=>{btn.textContent='保存配置';btn.style.background='';},1500);
+}
+
+function rRole(){
+  const el=document.getElementById('p-role');
+  let filtered=roles;
+
+  if(curRoleView==='list'||!curRole){
+    let h=`<div class="ph"><div><div class="ph-t">角色列表</div><div class="ph-s">共 ${filtered.length} 个角色，点击角色可配置权限</div></div><button class="btn btn-p" onclick="om('role')">+ 新建角色</button></div>`;
+    h+=`<div class="role-split" style="height:calc(100% - 58px)">
+    <div class="role-list-pane">
+      <div class="role-list-header"><span style="font-size:11.5px;font-weight:600;color:var(--text2)">角色列表</span></div>`;
+    filtered.forEach(r=>{
+      h+=`<div class="ritem${curRole===r.id?' on':''}" onclick="curRole='${r.id}';curRoleView='detail';rMain()">
+        <div class="rav ${TAGCLS[r.col]||'tag-gray'}">${r.name.slice(0,2)}</div>
+        <div style="flex:1;overflow:hidden"><div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}</div><div style="font-size:10.5px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.desc}</div></div>
+      </div>`;
+    });
+    if(!filtered.length)h+=`<div class="empty">暂无角色</div>`;
+    h+=`</div><div class="role-detail-pane"><div class="empty" style="padding-top:60px">← 点击左侧角色查看权限配置</div></div></div>`;
+    el.innerHTML=h;return;
+  }
+
+  const r=R(curRole);if(!r){curRoleView='list';rRole();return;}
+  const dA=getAvail('d0');const rAccts=accounts.filter(a=>a.role===r.id);
+  let h=`<div class="ph"><div><div class="ph-t">角色列表</div><div class="ph-s">共 ${filtered.length} 个角色，点击角色可配置权限</div></div><button class="btn btn-p" onclick="om('role')">+ 新建角色</button></div>`;
+  h+=`<div class="role-split" style="height:calc(100% - 58px)">
+  <div class="role-list-pane">
+    <div class="role-list-header"><span style="font-size:11.5px;font-weight:600;color:var(--text2)">角色列表</span></div>`;
+  filtered.forEach(rv=>{
+    h+=`<div class="ritem${curRole===rv.id?' on':''}" onclick="curRole='${rv.id}';curRoleView='detail';rMain()">
+      <div class="rav ${TAGCLS[rv.col]||'tag-gray'}">${rv.name.slice(0,2)}</div>
+      <div style="flex:1;overflow:hidden"><div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.name}</div><div style="font-size:10.5px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.desc}</div></div>
+    </div>`;
+  });
+  h+=`</div><div class="role-detail-pane">`;
+
+  h+=`<div class="ph" style="padding:14px 18px 10px"><div><div class="ph-t">${r.name}</div><div class="ph-s">${r.desc} · ${rAccts.length} 人持有</div></div><div style="display:flex;gap:6px"><button class="btn btn-d" onclick="delRole('${r.id}')">删除</button></div></div>`;
+  h+=`<div class="sec"><div class="sec-t"><span>权限配置</span><button class="btn btn-p" onclick="saveRPerms('${r.id}')">保存</button></div>
+  <div class="notice">勾选该角色可访问的功能页面</div><div class="mg">`;
+  MODS.forEach(m=>{
+    if(!FE[m.id])return;const ap=dA[m.id]||[];if(!ap.length)return;
+    const rp=r.perms[m.id]||[];const all=ap.every(p=>rp.includes(p));
+    h+=`<div class="mmod"><div class="mmod-h"><input class="ck" type="checkbox" ${all?'checked':''} onchange="togRM('${r.id}','${m.id}',this.checked)"><span style="flex:1">${m.name}</span><span style="font-size:10.5px;color:var(--text3)">${rp.length}/${ap.length}</span></div><div class="mmod-pages">`;
+    ap.forEach(pid=>{const pg=ALLPG.find(p=>p.id===pid);if(!pg)return;h+=`<div class="mpage"><input class="ck" type="checkbox" data-ri="${r.id}" data-mod="${m.id}" data-pg="${pid}" ${rp.includes(pid)?'checked':''}><span style="flex:1">${pg.name}</span></div>`;});
+    h+='</div></div>';
+  });
+  h+='</div></div>';
+  h+=`<div class="sec"><div class="sec-t">持有该角色的账户 <span style="font-size:10.5px;color:var(--text3);font-weight:400">${rAccts.length} 人</span></div>`;
+  if(rAccts.length){h+=`<table class="atbl"><thead><tr><th style="width:30px"></th><th>姓名</th><th>账号</th><th>部门</th><th style="width:55px">状态</th></tr></thead><tbody>`;rAccts.forEach(a=>{h+=`<tr><td><div class="av">${a.name.slice(0,2)}</div></td><td style="font-weight:600">${a.name}</td><td style="color:var(--text2);font-size:11.5px">${a.login}</td><td>${dn(a.dept)}</td><td><span style="display:inline-flex;align-items:center;font-size:11px"><span class="sdot" style="background:${a.status==='active'?'var(--success)':'var(--text3)'}"></span>${a.status==='active'?'启用':'停用'}</span></td></tr>`;});h+='</tbody></table>';}
+  else h+=`<div style="font-size:11.5px;color:var(--text3)">暂无账户持有此角色</div>`;
+  h+=`</div></div></div>`;
+  el.innerHTML=h;
+}
+function togRM(rid,mid,on){const r=R(rid);if(!r)return;const ap=getAvail('d0')[mid]||[];if(on)r.perms[mid]=ap.slice();else delete r.perms[mid];document.querySelectorAll(`input[data-ri="${rid}"][data-mod="${mid}"]`).forEach(c=>c.checked=on);}
+function saveRPerms(rid){
+  const r=R(rid);if(!r)return;const da=getAvail('d0');r.perms={};
+  MODS.forEach(m=>{const ap=(da[m.id]||[]).filter(pid=>{const c=document.querySelector(`input[data-ri="${rid}"][data-mod="${m.id}"][data-pg="${pid}"]`);return c&&c.checked;});if(ap.length)r.perms[m.id]=ap;});
+  const btn=event.target;btn.textContent='已保存 ✓';btn.style.background='var(--success)';setTimeout(()=>{btn.textContent='保存';btn.style.background='';},1500);
+}
+
+function rAcct(){
+  const el=document.getElementById('p-acct');
+  let list=accounts.slice();
+  const dLabel=curAcctDept==='all'?'全部账户':dn(curAcctDept);
+  if(curAcctDept!=='all'){const sub=subIds(curAcctDept);list=list.filter(a=>sub.includes(a.dept));}
+  list.sort((a,b)=>(R(b.role)?.w||0)-(R(a.role)?.w||0));
+  const sv=document.getElementById('acct-si')?.value||'';
+  if(sv)list=list.filter(a=>a.name.includes(sv)||a.login.includes(sv)||(a.no||'').includes(sv));
+
+  let h=`<div class="ph"><div><div class="ph-t">账户管理</div><div class="ph-s">${dLabel} · 共 ${list.length} 个账户</div></div><button class="btn btn-p" onclick="om('acct')">+ 新建账户</button></div>
+  <div class="acct-filters"><input id="acct-si" class="search-i" placeholder="搜索姓名 / 账号 / 工号…" oninput="rAcct()"><div style="flex:1"></div><span style="font-size:11px;color:var(--text3)">${list.length} 条 · 按角色权重排序</span></div>
+  <div style="padding:0 20px 20px"><table class="atbl"><thead><tr>
+    <th style="width:30px"></th><th style="width:65px">姓名</th><th style="width:75px">工号</th>
+    <th style="width:100px">账号</th><th style="width:70px">部门</th><th style="width:80px">角色</th>
+    <th style="width:110px">邮箱</th><th style="width:55px">状态</th><th style="width:80px">操作</th>
+  </tr></thead><tbody>`;
+  if(!list.length)h+=`<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px;font-size:12px">暂无账户</td></tr>`;
+  list.forEach(a=>{const rv=R(a.role);h+=`<tr>
+    <td><div class="av">${a.name.slice(0,2)}</div></td>
+    <td style="font-weight:600">${a.name}</td>
+    <td style="color:var(--text2);font-size:11px">${a.no||'—'}</td>
+    <td style="color:var(--text2);font-size:11px">${a.login}</td>
+    <td style="font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${dn(a.dept)}</td>
+    <td>${rv?`<span class="tag ${TAGCLS[rv.col]||'tag-gray'}">${rv.name}</span>`:'<span style="font-size:10.5px;color:var(--text3)">未分配</span>'}</td>
+    <td style="color:var(--text2);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.email||'—'}</td>
+    <td><span style="display:inline-flex;align-items:center;font-size:11px;cursor:pointer" onclick="togAS('${a.id}')"><span class="sdot" style="background:${a.status==='active'?'var(--success)':'var(--text3)'}"></span>${a.status==='active'?'启用':'停用'}</span></td>
+    <td><div style="display:flex;gap:3px"><button class="btn btn-g" style="padding:2px 7px;font-size:11px" onclick="om('acct','${a.id}')">编辑</button><button class="btn btn-g btn-d" style="padding:2px 7px;font-size:11px" onclick="delAcct('${a.id}')">删除</button></div></td>
+  </tr>`;});
+  h+='</tbody></table></div>';
+  const pv=document.getElementById('acct-si')?.value;
+  el.innerHTML=h;
+  if(pv&&document.getElementById('acct-si'))document.getElementById('acct-si').value=pv;
+}
+function togAS(id){const a=accounts.find(x=>x.id===id);if(a)a.status=a.status==='active'?'disabled':'active';rAcct();}
+function delAcct(id){accounts=accounts.filter(a=>a.id!==id);rAcct();}
+
+function om(type,eid){
+  edDept=null;edRole=null;edAcct=null;
+  if(type==='dept'){
+    edDept=eid||null;
+    const fd=flatD();
+    const sel=document.getElementById('f-dept-parent');
+    sel.innerHTML='<option value="">— 顶级（集团根节点）—</option>'+fd.map(d=>`<option value="${d.id}">${'　'.repeat(d.dep)}${d.name}</option>`).join('');
+    if(eid){const d=D(eid);document.getElementById('mh-dept').textContent='编辑部门';document.getElementById('f-dept-name').value=d.name;sel.value=d.parent||'';document.getElementById('f-dept-desc').value=d.desc||'';}
+    else{document.getElementById('mh-dept').textContent='新增部门';document.getElementById('f-dept-name').value='';sel.value=curOrgDept&&curOrgDept!=='d0'?curOrgDept:'';document.getElementById('f-dept-desc').value='';}
+  }
+  if(type==='role'){
+    edRole=eid||null;
+    if(eid){const r=R(eid);document.getElementById('mh-role').textContent='编辑角色';document.getElementById('f-role-name').value=r.name;document.getElementById('f-role-desc').value=r.desc||'';}
+    else{document.getElementById('mh-role').textContent='新建角色';document.getElementById('f-role-name').value='';document.getElementById('f-role-desc').value='';}
+    document.querySelector('input[name="rlv"][value="mid"]').checked=true;
+  }
+  if(type==='acct'){
+    edAcct=eid||null;
+    const fd=flatD();const ds=document.getElementById('f-adept');
+    ds.innerHTML=fd.map(d=>`<option value="${d.id}">${'　'.repeat(d.dep)}${d.name}</option>`).join('');
+    document.getElementById('mh-acct').textContent=eid?'编辑账户':'新建账户';
+    if(eid){
+      const a=accounts.find(x=>x.id===eid);
+      document.getElementById('f-an').value=a.name;document.getElementById('f-al').value=a.login;
+      document.getElementById('f-ano').value=a.no||'';document.getElementById('f-aph').value=a.phone||'';
+      document.getElementById('f-ae').value=a.email||'';document.getElementById('f-anote').value=a.note||'';
+      ds.value=a.dept;refreshAR(a.role);
+      document.querySelector(`input[name="ast"][value="${a.status}"]`).checked=true;
+    } else {
+      ['f-an','f-al','f-ano','f-aph','f-ae','f-anote'].forEach(id=>document.getElementById(id).value='');
+      if(curAcctDept&&curAcctDept!=='all')ds.value=curAcctDept;
+      refreshAR(null);document.querySelector('input[name="ast"][value="active"]').checked=true;
+    }
+  }
+  document.getElementById('ov-'+type).classList.add('on');
+}
+function cm(t){document.getElementById('ov-'+t).classList.remove('on');}
+function refreshAR(selRid){
+  const rs=document.getElementById('f-arole');
+  rs.innerHTML='<option value="">— 不分配角色 —</option>'+roles.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');
+  if(selRid)rs.value=selRid;
+}
+function saveDept(){
+  const name=document.getElementById('f-dept-name').value.trim();if(!name)return;
+  const parent=document.getElementById('f-dept-parent').value||null;
+  const desc=document.getElementById('f-dept-desc').value.trim();
+  if(edDept){const d=D(edDept);d.name=name;d.parent=parent;d.desc=desc;}
+  else depts.push({id:'d'+Date.now(),name,parent,desc,perms:{}});
+  cm('dept');rSB();rMain();
+}
+function delDept(id){
+  if(ch(id).length){alert('请先删除子部门');return;}
+  depts=depts.filter(d=>d.id!==id);
+  accounts.forEach(a=>{if(a.dept===id)a.dept=null;});
+  roles.forEach(r=>{if(r.dept===id)r.dept=null;});
+  if(curOrgDept===id)curOrgDept=null;
+  rSB();rMain();
+}
+function saveRole(){
+  const name=document.getElementById('f-role-name').value.trim();if(!name)return;
+  const desc=document.getElementById('f-role-desc').value.trim()||'自定义角色';
+  const lv=document.querySelector('input[name="rlv"]:checked')?.value||'mid';
+  const w=lv==='high'?80:lv==='mid'?50:30;
+  const col=COLORS[rci++%COLORS.length];
+  if(edRole){const r=R(edRole);r.name=name;r.desc=desc;r.w=w;}
+  else roles.push({id:'r'+Date.now(),name,col,desc,w,perms:{}});
+  cm('role');rSB();rMain();
+}
+function delRole(id){
+  roles=roles.filter(r=>r.id!==id);
+  accounts.forEach(a=>{if(a.role===id)a.role=null;});
+  if(curRole===id){curRole=null;curRoleView='list';}
+  rSB();rMain();
+}
+function saveAcct(){
+  const name=document.getElementById('f-an').value.trim();
+  const login=document.getElementById('f-al').value.trim();
+  if(!name||!login)return;
+  const no=document.getElementById('f-ano').value.trim();
+  const phone=document.getElementById('f-aph').value.trim();
+  const email=document.getElementById('f-ae').value.trim();
+  const dept=document.getElementById('f-adept').value;
+  const role=document.getElementById('f-arole').value||null;
+  const note=document.getElementById('f-anote').value.trim();
+  const status=document.querySelector('input[name="ast"]:checked')?.value||'active';
+  if(edAcct){const a=accounts.find(x=>x.id===edAcct);if(a)Object.assign(a,{name,login,no,phone,email,dept,role,note,status});}
+  else accounts.push({id:'a'+Date.now(),name,login,no,phone,email,dept,role,note,status});
+  cm('acct');rAcct();
+}
+
+rSB();rMain();
+</script>
