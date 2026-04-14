@@ -167,6 +167,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
   <div class="modal-h"><span class="modal-ht" id="mh-role">新建角色</span><button class="modal-x" onclick="cm('role')">✕</button></div>
   <div class="modal-b">
     <div class="fr"><label class="fl">角色名称 <span class="req">*</span></label><input class="fi" id="f-role-name" placeholder="如：销售总监、研发工程师"></div>
+    <div class="fr"><label class="fl">所属部门 <span class="req">*</span></label><select class="fi-sel fi" id="f-role-dept"></select><div class="hint">角色可分配的功能权限不超出所属部门范围</div></div>
     <div class="fr"><label class="fl">角色职级</label>
       <div class="radio-row">
         <label class="radio-item"><input type="radio" name="rlv" value="high">高级</label>
@@ -192,10 +193,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
       <div class="fr"><label class="fl">登录账号 <span class="req">*</span></label><input class="fi" id="f-al" placeholder="字母/数字组合"></div>
       <div class="fr"><label class="fl">手机号</label><input class="fi" id="f-aph" placeholder="用于接收验证码"></div>
     </div>
-    <div class="fr"><label class="fl">邮箱</label><input class="fi" id="f-ae" placeholder="企业邮箱地址"></div>
     <div class="mdiv"></div>
     <div class="fr"><label class="fl">所属部门 <span class="req">*</span></label><select class="fi-sel fi" id="f-adept" onchange="refreshAR()"></select></div>
-    <div class="fr"><label class="fl">分配角色</label><select class="fi-sel fi" id="f-arole"></select></div>
+    <div class="fr"><label class="fl">分配角色</label><select class="fi-sel fi" id="f-arole"></select><div class="hint">仅显示所属部门下已配置的角色</div></div>
     <div class="mdiv"></div>
     <div class="fr"><label class="fl">账户状态</label>
       <div class="radio-row">
@@ -294,9 +294,9 @@ function rSB(){
     sb.innerHTML='<div class="sb-lbl">组织架构</div>'+rTree('org',null,0)+`<div class="sb-add"><button class="btn btn-g" style="width:100%;justify-content:center;font-size:11.5px;color:var(--text2)" onclick="om('dept')">+ 新增部门</button></div><div class="sb-foot"></div>`;return;
   }
   if(curTab==='role'){
-    sb.innerHTML=`<div class="sb-lbl">角色管理</div>
-    <div class="sn on"><span style="padding-left:2px;font-size:12px">全部角色</span></div>
-    <div class="sb-add"><button class="btn btn-g" style="width:100%;justify-content:center;font-size:11.5px;color:var(--text2)" onclick="om('role')">+ 新建角色</button></div><div class="sb-foot"></div>`;return;
+    sb.innerHTML=`<div class="sb-lbl">组织架构</div>
+    <div class="sn${curRoleDept==='all'?' on':''}" onclick="selRD('all')"><span style="padding-left:2px;font-size:12px">全部角色</span></div>
+    <div class="sb-div"></div>`+rTree('role',null,0)+`<div class="sb-add"><button class="btn btn-g" style="width:100%;justify-content:center;font-size:11.5px;color:var(--text2)" onclick="om('role')">+ 新建角色</button></div><div class="sb-foot"></div>`;return;
   }
   if(curTab==='acct'){
     sb.innerHTML=`<div class="sb-lbl">组织架构</div>
@@ -350,12 +350,36 @@ function rOrg(){
   if(!curOrgDept){el.innerHTML='<div class="empty">← 点击左侧部门节点查看详情</div>';return;}
   const d=D(curOrgDept);if(!d){el.innerHTML='<div class="empty">← 点击左侧部门节点查看详情</div>';return;}
   const isRoot=!d.parent;const path=ancestors(d.id);
+  const dRoles=roles.filter(r=>r.dept===d.id);
   const dAccts=accounts.filter(a=>a.dept===d.id);
   const bcr=path.map((x,i)=>`<span style="${i===path.length-1?'font-weight:600;color:var(--text)':''}">${x.name}</span>${i<path.length-1?'<span class="sep"> / </span>':''}`).join('');
 
   let h=`<div class="bcr">${bcr}</div>
-  <div class="ph"><div><div class="ph-t">${d.name}</div><div class="ph-s">${d.desc||''} · ${dAccts.length} 个账户</div></div>
+  <div class="ph"><div><div class="ph-t">${d.name}</div><div class="ph-s">${d.desc||''} · ${dAccts.length} 个账户 · ${dRoles.length} 个已配置角色</div></div>
   <div style="display:flex;gap:6px"><button class="btn" onclick="om('dept','${d.id}')">编辑</button>${!isRoot?`<button class="btn btn-d" onclick="delDept('${d.id}')">删除</button>`:''}</div></div>`;
+
+  h+=`<div class="sec"><div class="sec-t"><span>功能权限配置 <span style="font-size:10.5px;color:var(--text3);font-weight:400">${isRoot?'根节点拥有全部已启用功能':'在上级部门范围内分配'}</span></span>${!isRoot?`<button class="btn btn-p" onclick="saveDPerms('${d.id}')">保存配置</button>`:''}</div>`;
+  if(isRoot){
+    h+=`<div class="notice">集团根节点默认拥有所有已启用功能，各子部门从此继承并可缩小授权范围</div><div class="mg">`;
+    MODS.forEach(m=>{if(!FE[m.id])return;h+=`<div class="mmod"><div class="mmod-h"><span style="flex:1">${m.name}</span><span class="tag tag-on">全部启用</span></div></div>`;});
+    h+='</div>';
+  } else {
+    const pA=getAvail(d.parent);
+    h+=`<div class="notice">可选范围受上级「${dn(d.parent)}」限制，超出范围的功能不可勾选</div><div class="mg">`;
+    MODS.forEach(m=>{
+      if(!FE[m.id])return;const pp=pA[m.id]||[];if(!pp.length)return;
+      const dp=d.perms[m.id]||[];const all=pp.every(p=>dp.includes(p));
+      h+=`<div class="mmod"><div class="mmod-h"><input class="ck" type="checkbox" ${all?'checked':''} onchange="togDM('${d.id}','${m.id}',this.checked)"><span style="flex:1">${m.name}</span><span style="font-size:10.5px;color:var(--text3)">${dp.length}/${pp.length}</span></div><div class="mmod-pages">`;
+      pp.forEach(pid=>{const pg=ALLPG.find(p=>p.id===pid);if(!pg)return;h+=`<div class="mpage"><input class="ck" type="checkbox" data-dd="${d.id}" data-mod="${m.id}" data-pg="${pid}" ${dp.includes(pid)?'checked':''}><span style="flex:1">${pg.name}</span></div>`;});
+      h+='</div></div>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
+  h+=`<div class="sec"><div class="sec-t">已配置角色</div>`;
+  if(dRoles.length){h+=`<div class="rc-grid">${dRoles.map(r=>`<div class="rc" onclick="goTab('role');setTimeout(()=>{curRoleDept='${r.dept}';curRole='${r.id}';curRoleView='detail';rSB();rMain();},50)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><div class="rav ${TAGCLS[r.col]||'tag-gray'}">${r.name.slice(0,2)}</div><span style="font-size:12px;font-weight:600">${r.name}</span></div><div style="font-size:10.5px;color:var(--text2);padding-left:36px">${r.desc}</div></div>`).join('')}</div>`;}
+  else h+=`<div style="font-size:11.5px;color:var(--text3)">暂无已配置角色</div>`;
+  h+='</div>';
   h+=`<div class="sec"><div class="sec-t">部门成员</div>`;
   if(dAccts.length){h+=`<table class="atbl"><thead><tr><th style="width:30px"></th><th>姓名</th><th>账号</th><th>角色</th><th style="width:55px">状态</th></tr></thead><tbody>`;dAccts.forEach(a=>{const rv=R(a.role);h+=`<tr><td><div class="av">${a.name.slice(0,2)}</div></td><td style="font-weight:600">${a.name}</td><td style="color:var(--text2);font-size:11.5px">${a.login}</td><td>${rv?`<span class="tag ${TAGCLS[rv.col]||'tag-gray'}">${rv.name}</span>`:''}</td><td><span style="display:inline-flex;align-items:center;font-size:11px"><span class="sdot" style="background:${a.status==='active'?'var(--success)':'var(--text3)'}"></span>${a.status==='active'?'启用':'停用'}</span></td></tr>`;});h+='</tbody></table>';}
   else h+=`<div style="font-size:11.5px;color:var(--text3)">暂无成员</div>`;
@@ -372,16 +396,18 @@ function saveDPerms(did){
 function rRole(){
   const el=document.getElementById('p-role');
   let filtered=roles;
+  if(curRoleDept!=='all'){const sub=subIds(curRoleDept);filtered=roles.filter(r=>sub.includes(r.dept));}
 
   if(curRoleView==='list'||!curRole){
-    let h=`<div class="ph"><div><div class="ph-t">角色列表</div><div class="ph-s">共 ${filtered.length} 个角色，点击角色可配置权限</div></div><button class="btn btn-p" onclick="om('role')">+ 新建角色</button></div>`;
+    const dLabel=curRoleDept==='all'?'全部':dn(curRoleDept);
+    let h=`<div class="ph"><div><div class="ph-t">${dLabel}角色列表</div><div class="ph-s">共 ${filtered.length} 个角色，点击角色可配置权限</div></div><button class="btn btn-p" onclick="om('role')">+ 新建角色</button></div>`;
     h+=`<div class="role-split" style="height:calc(100% - 58px)">
     <div class="role-list-pane">
       <div class="role-list-header"><span style="font-size:11.5px;font-weight:600;color:var(--text2)">角色列表</span></div>`;
     filtered.forEach(r=>{
       h+=`<div class="ritem${curRole===r.id?' on':''}" onclick="curRole='${r.id}';curRoleView='detail';rMain()">
         <div class="rav ${TAGCLS[r.col]||'tag-gray'}">${r.name.slice(0,2)}</div>
-        <div style="flex:1;overflow:hidden"><div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}</div><div style="font-size:10.5px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.desc}</div></div>
+        <div style="flex:1;overflow:hidden"><div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}</div><div style="font-size:10.5px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${dn(r.dept)}</div></div>
       </div>`;
     });
     if(!filtered.length)h+=`<div class="empty">暂无角色</div>`;
@@ -390,22 +416,23 @@ function rRole(){
   }
 
   const r=R(curRole);if(!r){curRoleView='list';rRole();return;}
-  const dA=getAvail('d0');const rAccts=accounts.filter(a=>a.role===r.id);
-  let h=`<div class="ph"><div><div class="ph-t">角色列表</div><div class="ph-s">共 ${filtered.length} 个角色，点击角色可配置权限</div></div><button class="btn btn-p" onclick="om('role')">+ 新建角色</button></div>`;
+  const dA=getAvail(r.dept);const rAccts=accounts.filter(a=>a.role===r.id);
+  const dLabel=curRoleDept==='all'?'全部':dn(curRoleDept);
+  let h=`<div class="ph"><div><div class="ph-t">${dLabel}角色列表</div><div class="ph-s">共 ${filtered.length} 个角色，点击角色可配置权限</div></div><button class="btn btn-p" onclick="om('role')">+ 新建角色</button></div>`;
   h+=`<div class="role-split" style="height:calc(100% - 58px)">
   <div class="role-list-pane">
     <div class="role-list-header"><span style="font-size:11.5px;font-weight:600;color:var(--text2)">角色列表</span></div>`;
   filtered.forEach(rv=>{
     h+=`<div class="ritem${curRole===rv.id?' on':''}" onclick="curRole='${rv.id}';curRoleView='detail';rMain()">
       <div class="rav ${TAGCLS[rv.col]||'tag-gray'}">${rv.name.slice(0,2)}</div>
-      <div style="flex:1;overflow:hidden"><div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.name}</div><div style="font-size:10.5px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.desc}</div></div>
+      <div style="flex:1;overflow:hidden"><div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.name}</div><div style="font-size:10.5px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${dn(rv.dept)}</div></div>
     </div>`;
   });
   h+=`</div><div class="role-detail-pane">`;
 
-  h+=`<div class="ph" style="padding:14px 18px 10px"><div><div class="ph-t">${r.name}</div><div class="ph-s">${r.desc} · ${rAccts.length} 人持有</div></div><div style="display:flex;gap:6px"><button class="btn btn-d" onclick="delRole('${r.id}')">删除</button></div></div>`;
-  h+=`<div class="sec"><div class="sec-t"><span>权限配置</span><button class="btn btn-p" onclick="saveRPerms('${r.id}')">保存</button></div>
-  <div class="notice">勾选该角色可访问的功能页面</div><div class="mg">`;
+  h+=`<div class="ph" style="padding:14px 18px 10px"><div><div class="ph-t">${r.name}</div><div class="ph-s">所属：${dn(r.dept)} · ${r.desc} · ${rAccts.length} 人持有</div></div><div style="display:flex;gap:6px"><button class="btn btn-d" onclick="delRole('${r.id}')">删除</button></div></div>`;
+  h+=`<div class="sec"><div class="sec-t"><span>权限配置 <span style="font-size:10.5px;color:var(--text3);font-weight:400">限「${dn(r.dept)}」范围内</span></span><button class="btn btn-p" onclick="saveRPerms('${r.id}')">保存</button></div>
+  <div class="notice">仅显示所属部门已授权的功能页面，超出部门范围的不可选择</div><div class="mg">`;
   MODS.forEach(m=>{
     if(!FE[m.id])return;const ap=dA[m.id]||[];if(!ap.length)return;
     const rp=r.perms[m.id]||[];const all=ap.every(p=>rp.includes(p));
@@ -420,9 +447,9 @@ function rRole(){
   h+=`</div></div></div>`;
   el.innerHTML=h;
 }
-function togRM(rid,mid,on){const r=R(rid);if(!r)return;const ap=getAvail('d0')[mid]||[];if(on)r.perms[mid]=ap.slice();else delete r.perms[mid];document.querySelectorAll(`input[data-ri="${rid}"][data-mod="${mid}"]`).forEach(c=>c.checked=on);}
+function togRM(rid,mid,on){const r=R(rid);if(!r)return;const ap=getAvail(r.dept)[mid]||[];if(on)r.perms[mid]=ap.slice();else delete r.perms[mid];document.querySelectorAll(`input[data-ri="${rid}"][data-mod="${mid}"]`).forEach(c=>c.checked=on);}
 function saveRPerms(rid){
-  const r=R(rid);if(!r)return;const da=getAvail('d0');r.perms={};
+  const r=R(rid);if(!r)return;const da=getAvail(r.dept);r.perms={};
   MODS.forEach(m=>{const ap=(da[m.id]||[]).filter(pid=>{const c=document.querySelector(`input[data-ri="${rid}"][data-mod="${m.id}"][data-pg="${pid}"]`);return c&&c.checked;});if(ap.length)r.perms[m.id]=ap;});
   const btn=event.target;btn.textContent='已保存 ✓';btn.style.background='var(--success)';setTimeout(()=>{btn.textContent='保存';btn.style.background='';},1500);
 }
@@ -441,9 +468,9 @@ function rAcct(){
   <div style="padding:0 20px 20px"><table class="atbl"><thead><tr>
     <th style="width:30px"></th><th style="width:65px">姓名</th><th style="width:75px">工号</th>
     <th style="width:100px">账号</th><th style="width:70px">部门</th><th style="width:80px">角色</th>
-    <th style="width:110px">邮箱</th><th style="width:55px">状态</th><th style="width:80px">操作</th>
+    <th style="width:55px">状态</th><th style="width:80px">操作</th>
   </tr></thead><tbody>`;
-  if(!list.length)h+=`<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px;font-size:12px">暂无账户</td></tr>`;
+  if(!list.length)h+=`<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px;font-size:12px">暂无账户</td></tr>`;
   list.forEach(a=>{const rv=R(a.role);h+=`<tr>
     <td><div class="av">${a.name.slice(0,2)}</div></td>
     <td style="font-weight:600">${a.name}</td>
@@ -451,7 +478,6 @@ function rAcct(){
     <td style="color:var(--text2);font-size:11px">${a.login}</td>
     <td style="font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${dn(a.dept)}</td>
     <td>${rv?`<span class="tag ${TAGCLS[rv.col]||'tag-gray'}">${rv.name}</span>`:'<span style="font-size:10.5px;color:var(--text3)">未分配</span>'}</td>
-    <td style="color:var(--text2);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.email||'—'}</td>
     <td><span style="display:inline-flex;align-items:center;font-size:11px;cursor:pointer" onclick="togAS('${a.id}')"><span class="sdot" style="background:${a.status==='active'?'var(--success)':'var(--text3)'}"></span>${a.status==='active'?'启用':'停用'}</span></td>
     <td><div style="display:flex;gap:3px"><button class="btn btn-g" style="padding:2px 7px;font-size:11px" onclick="om('acct','${a.id}')">编辑</button><button class="btn btn-g btn-d" style="padding:2px 7px;font-size:11px" onclick="delAcct('${a.id}')">删除</button></div></td>
   </tr>`;});
@@ -475,8 +501,10 @@ function om(type,eid){
   }
   if(type==='role'){
     edRole=eid||null;
-    if(eid){const r=R(eid);document.getElementById('mh-role').textContent='编辑角色';document.getElementById('f-role-name').value=r.name;document.getElementById('f-role-desc').value=r.desc||'';}
-    else{document.getElementById('mh-role').textContent='新建角色';document.getElementById('f-role-name').value='';document.getElementById('f-role-desc').value='';}
+    const fd=flatD();
+    document.getElementById('f-role-dept').innerHTML=fd.map(d=>`<option value="${d.id}">${'　'.repeat(d.dep)}${d.name}</option>`).join('');
+    if(eid){const r=R(eid);document.getElementById('mh-role').textContent='编辑角色';document.getElementById('f-role-name').value=r.name;document.getElementById('f-role-dept').value=r.dept;document.getElementById('f-role-desc').value=r.desc;}
+    else{document.getElementById('mh-role').textContent='新建角色';document.getElementById('f-role-name').value='';document.getElementById('f-role-dept').value=curRoleDept!=='all'?curRoleDept:(depts[0]?.id||'');document.getElementById('f-role-desc').value='';}
     document.querySelector('input[name="rlv"][value="mid"]').checked=true;
   }
   if(type==='acct'){
@@ -488,11 +516,11 @@ function om(type,eid){
       const a=accounts.find(x=>x.id===eid);
       document.getElementById('f-an').value=a.name;document.getElementById('f-al').value=a.login;
       document.getElementById('f-ano').value=a.no||'';document.getElementById('f-aph').value=a.phone||'';
-      document.getElementById('f-ae').value=a.email||'';document.getElementById('f-anote').value=a.note||'';
+      document.getElementById('f-anote').value=a.note||'';
       ds.value=a.dept;refreshAR(a.role);
       document.querySelector(`input[name="ast"][value="${a.status}"]`).checked=true;
     } else {
-      ['f-an','f-al','f-ano','f-aph','f-ae','f-anote'].forEach(id=>document.getElementById(id).value='');
+      ['f-an','f-al','f-ano','f-aph','f-anote'].forEach(id=>document.getElementById(id).value='');
       if(curAcctDept&&curAcctDept!=='all')ds.value=curAcctDept;
       refreshAR(null);document.querySelector('input[name="ast"][value="active"]').checked=true;
     }
@@ -501,8 +529,10 @@ function om(type,eid){
 }
 function cm(t){document.getElementById('ov-'+t).classList.remove('on');}
 function refreshAR(selRid){
+  const did=document.getElementById('f-adept').value;
+  const dr=roles.filter(r=>subIds(did).includes(r.dept)||r.dept===did);
   const rs=document.getElementById('f-arole');
-  rs.innerHTML='<option value="">— 不分配角色 —</option>'+roles.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');
+  rs.innerHTML='<option value="">— 不分配角色 —</option>'+dr.map(r=>`<option value="${r.id}">${r.name}（${dn(r.dept)}）</option>`).join('');
   if(selRid)rs.value=selRid;
 }
 function saveDept(){
@@ -523,12 +553,13 @@ function delDept(id){
 }
 function saveRole(){
   const name=document.getElementById('f-role-name').value.trim();if(!name)return;
+  const dept=document.getElementById('f-role-dept').value;
   const desc=document.getElementById('f-role-desc').value.trim()||'自定义角色';
   const lv=document.querySelector('input[name="rlv"]:checked')?.value||'mid';
   const w=lv==='high'?80:lv==='mid'?50:30;
   const col=COLORS[rci++%COLORS.length];
-  if(edRole){const r=R(edRole);r.name=name;r.desc=desc;r.w=w;}
-  else roles.push({id:'r'+Date.now(),name,col,desc,w,perms:{}});
+  if(edRole){const r=R(edRole);r.name=name;r.dept=dept;r.desc=desc;r.w=w;}
+  else roles.push({id:'r'+Date.now(),name,dept,col,desc,w,perms:{}});
   cm('role');rSB();rMain();
 }
 function delRole(id){
@@ -543,13 +574,12 @@ function saveAcct(){
   if(!name||!login)return;
   const no=document.getElementById('f-ano').value.trim();
   const phone=document.getElementById('f-aph').value.trim();
-  const email=document.getElementById('f-ae').value.trim();
   const dept=document.getElementById('f-adept').value;
   const role=document.getElementById('f-arole').value||null;
   const note=document.getElementById('f-anote').value.trim();
   const status=document.querySelector('input[name="ast"]:checked')?.value||'active';
-  if(edAcct){const a=accounts.find(x=>x.id===edAcct);if(a)Object.assign(a,{name,login,no,phone,email,dept,role,note,status});}
-  else accounts.push({id:'a'+Date.now(),name,login,no,phone,email,dept,role,note,status});
+  if(edAcct){const a=accounts.find(x=>x.id===edAcct);if(a)Object.assign(a,{name,login,no,phone,dept,role,note,status});}
+  else accounts.push({id:'a'+Date.now(),name,login,no,phone,dept,role,note,status});
   cm('acct');rAcct();
 }
 
