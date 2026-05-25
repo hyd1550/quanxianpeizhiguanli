@@ -77,6 +77,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .mmod-pages{display:flex;flex-direction:column}
 .mpage{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 30px;font-size:12px;color:var(--text2);border-top:1px solid var(--border)}
 .mpage:first-child{border-top:none}
+.msub{display:flex;align-items:center;gap:7px;padding:4px 12px 4px 54px;font-size:11.5px;color:var(--text2);border-top:1px solid var(--border);background:var(--bg2)}
+.msub2{display:flex;align-items:center;gap:7px;padding:3px 12px 3px 78px;font-size:11px;color:var(--text2);border-top:1px solid var(--border);background:var(--bg3)}
+.mp-sec{margin:14px 20px;border:1px solid var(--border2);border-radius:8px;overflow:hidden;background:var(--bg)}
+.mp-sec:first-child{margin-top:16px}
+.mp-sec-h{padding:10px 14px;background:linear-gradient(180deg,var(--bg2),var(--bg3));border-bottom:1.5px solid var(--border2);display:flex;align-items:center;gap:10px}
+.mp-sec-idx{width:24px;height:24px;border-radius:50%;background:var(--text);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.mp-sec-meta{flex:1}
+.mp-sec-t{font-size:13px;font-weight:600;color:var(--text);letter-spacing:.3px}
+.mp-sec-d{font-size:11px;color:var(--text2);margin-top:2px}
+.mp-sec-body{padding:12px 14px}
 .ck{width:13px;height:13px;cursor:pointer;accent-color:var(--text);flex-shrink:0}
 .atbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 .atbl th{text-align:left;padding:7px 10px;color:var(--text2);font-weight:500;font-size:11px;border-bottom:1.5px solid var(--border2);background:var(--bg2)}
@@ -197,6 +207,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
     <div class="fr"><label class="fl">所属部门 <span class="req">*</span></label><select class="fi-sel fi" id="f-adept" onchange="refreshAR()"></select></div>
     <div class="fr"><label class="fl">分配角色</label><select class="fi-sel fi" id="f-arole"></select><div class="hint">仅显示所属部门下已配置的角色</div></div>
     <div class="mdiv"></div>
+    <div class="fr"><label class="fl" id="f-pwd-label">登录密码 <span class="req">*</span></label>
+      <div style="display:flex;gap:6px">
+        <input class="fi" id="f-pwd-new" type="text" placeholder="8 位以上，含大小写/数字/符号 ≥3 类" style="flex:1" oninput="checkPwd()">
+        <button type="button" class="btn" onclick="genRandomPwd()">生成随机</button>
+      </div>
+      <div class="hint" id="f-pwd-hint">至少 8 位，含大小写字母、数字、特殊字符中的 3 类；不能包含登录账号 / 工号 / 常见弱密码</div>
+    </div>
+    <div class="fr" id="f-pwd-opts">
+      <label class="radio-item" style="font-size:12.5px;display:flex"><input type="checkbox" id="f-pwd-force" checked>下次登录强制修改密码</label>
+    </div>
+    <div class="mdiv"></div>
     <div class="fr"><label class="fl">账户状态</label>
       <div class="radio-row">
         <label class="radio-item"><input type="radio" name="ast" value="active" checked>启用</label>
@@ -210,40 +231,189 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 
 </div>
 <script>
-const MODS=[
-  {id:'cockpit',name:'驾驶舱',pages:[{id:'p_c1',name:'行业趋势总览'},{id:'p_c2',name:'平台运行概况'}]},
-  {id:'chain',name:'产业链洞察',pages:[{id:'p_ch1',name:'产业链全景图'},{id:'p_ch2',name:'产业链环节详情'}]},
-  {id:'customer',name:'客情洞察',pages:[{id:'p_cu1',name:'国内市场分析'},{id:'p_cu2',name:'海外市场分析'},{id:'p_cu3',name:'招投标商机查询'},{id:'p_cu4',name:'企业监控'},{id:'p_cu5',name:'客户反馈与舆情分析'}]},
-  {id:'compete',name:'竞对监测',pages:[{id:'p_co1',name:'竞品监测'},{id:'p_co2',name:'企业对标分析'},{id:'p_co3',name:'价格监测看板'},{id:'p_co4',name:'市场监测看板'},{id:'p_co5',name:'创新监测看板'}]},
-  {id:'rnd',name:'研发创新',pages:[{id:'p_r1',name:'技术情报洞察'},{id:'p_r2',name:'研发方案推演'},{id:'p_r3',name:'专利申请支持'},{id:'p_r4',name:'侵权风险防控'},{id:'p_r5',name:'专利成果分析'},{id:'p_r6',name:'研发知识库'}]},
-  {id:'strategy',name:'战略研判',pages:[{id:'p_s1',name:'产业与技术洞察'},{id:'p_s2',name:'市场风险分析'},{id:'p_s3',name:'市场机遇识别'},{id:'p_s4',name:'政策监控'},{id:'p_s5',name:'竞对企业动作跟踪'},{id:'p_s6',name:'技术趋势分析'}]},
-  {id:'solution',name:'解决方案',pages:[{id:'p_sl1',name:'场景化案例库'},{id:'p_sl2',name:'案例上传记录'},{id:'p_sl3',name:'客诉案例库'}]},
-  {id:'infomgmt',name:'信息管理',pages:[{id:'p_i1',name:'技术需求管理'},{id:'p_i2',name:'客诉反馈信息管理'},{id:'p_i3',name:'数据维护'},{id:'p_i4',name:'手机端-客户反馈提报'}]},
-  {id:'profile',name:'个人中心',pages:[{id:'p_pf1',name:'个人基本资料'},{id:'p_pf2',name:'账户设置'},{id:'p_pf3',name:'个性化设置'}]}
+/* ─── 严格按《蓝山屯河功能清单20260417.xlsx》对齐 ─── */
+const PLATFORMS=[
+  {id:'p_mgmt', name:'产业化数字管理平台', desc:'决策驾驶舱，全局视窗一屏总览产业链运行态势', mods:['cockpit'], type:'platform'},
+  {id:'p_analy',name:'产业数据分析平台',   desc:'业务运营核心与数据加工中枢，覆盖产业链/客情/竞对/研发/战略全场景', mods:['chain','customer','compete','rnd','strategy','solution'], type:'platform'},
+  {id:'p_serv', name:'产业服务平台',       desc:'对外赋能窗口，复用分析平台能力对外提供服务', mods:['svc_rnd','svc_strategy','svc_solution'], type:'platform'},
+  {id:'g_wb',   name:'工作台',             desc:'用户日常操作入口，含消息提醒与基础数据维护', mods:['msg','datasrv'], type:'other'},
+  {id:'g_sys',  name:'系统管理',           desc:'平台后台运维与账户权限管控', mods:['intfmgmt','authmgmt','oplog'], type:'other'},
+  {id:'g_user', name:'个人中心',           desc:'账户与个性化设置', mods:['profile'], type:'other'}
 ];
-const ALLPG=MODS.flatMap(m=>m.pages.map(p=>({...p,modId:m.id})));
-let FE={};MODS.forEach(m=>{FE[m.id]=true;m.pages.forEach(p=>{FE[p.id]=true;});});
+
+const MODS=[
+  /* ─── 产业化数字管理平台 ─── */
+  {id:'cockpit',name:'驾驶舱',pages:[
+    {id:'p_c1',name:'产业链版图'},
+    {id:'p_c2',name:'行业趋势总览'},
+    {id:'p_c3',name:'平台运行概况'}
+  ]},
+  /* ─── 产业数据分析平台 ─── */
+  {id:'chain',name:'产业链洞察',pages:[
+    {id:'p_ch1',name:'产业链全景图',subs:[
+      {id:'p_ch1_1',name:'生物可降解材料产业链'},
+      {id:'p_ch1_2',name:'日用消费品产业链'},
+      {id:'p_ch1_3',name:'母婴用品产业链'},
+      {id:'p_ch1_4',name:'包装产业链'},
+      {id:'p_ch1_5',name:'农业园艺产业链'},
+      {id:'p_ch1_6',name:'纺织纤维与鞋服产业链'},
+      {id:'p_ch1_7',name:'一次性医用耗材产业链'},
+      {id:'p_ch1_8',name:'3D打印产业链'},
+      {id:'p_ch1_9',name:'防沙环保产业链'},
+      {id:'p_ch1_10',name:'轻量化应用产业链'},
+      {id:'p_ch1_11',name:'渔牧业应用产业链'},
+      {id:'p_ch1_12',name:'电子产品应用产业链'}
+    ]},
+    {id:'p_ch2',name:'产业链环节详情',subs:[
+      {id:'p_ch2_1',name:'产品介绍'},
+      {id:'p_ch2_2',name:'产品市场布局'},
+      {id:'p_ch2_3',name:'产品制造商'},
+      {id:'p_ch2_4',name:'上游供应商'},
+      {id:'p_ch2_5',name:'下游客户'},
+      {id:'p_ch2_6',name:'相关专利'},
+      {id:'p_ch2_7',name:'相关标准'},
+      {id:'p_ch2_8',name:'相关成果'},
+      {id:'p_ch2_9',name:'产品出口'},
+      {id:'p_ch2_10',name:'产品进口'},
+      {id:'p_ch2_11',name:'产品舆情'}
+    ]}
+  ]},
+  {id:'customer',name:'客情洞察',pages:[
+    {id:'p_cu1',name:'国内市场分析',subs:[
+      {id:'p_cu1_1',name:'市场分析'},
+      {id:'p_cu1_2',name:'企业详情'}
+    ]},
+    {id:'p_cu2',name:'海外市场分析',subs:[
+      {id:'p_cu2_1',name:'找海外客户'},
+      {id:'p_cu2_2',name:'客户详情'}
+    ]},
+    {id:'p_cu3',name:'招投标商机查询'},
+    {id:'p_cu4',name:'企业监控'},
+    {id:'p_cu5',name:'客户反馈与舆情分析',subs:[
+      {id:'p_cu5_1',name:'舆情分析'},
+      {id:'p_cu5_2',name:'负面舆情监测预警'},
+      {id:'p_cu5_3',name:'客诉反馈分析'}
+    ]},
+    {id:'p_cu6',name:'客诉反馈信息管理',subs:[
+      {id:'p_cu6_1',name:'待处理反馈信息'},
+      {id:'p_cu6_2',name:'客户投诉信息'},
+      {id:'p_cu6_3',name:'需求信息'}
+    ]}
+  ]},
+  {id:'compete',name:'竞对监测',pages:[
+    {id:'p_co1',name:'竞品监测'},
+    {id:'p_co2',name:'企业对标分析'},
+    {id:'p_co3',name:'价格监测看板'},
+    {id:'p_co4',name:'市场监测看板'},
+    {id:'p_co5',name:'创新监测看板'}
+  ]},
+  {id:'rnd',name:'研发创新',pages:[
+    {id:'p_r1',name:'技术情报洞察',subs:[
+      {id:'p_r1_1',name:'专利查询'},
+      {id:'p_r1_2',name:'产品标准查询'}
+    ]},
+    {id:'p_r2',name:'技术需求管理',subs:[
+      {id:'p_r2_1',name:'技术需求提报'},
+      {id:'p_r2_2',name:'需求提报记录'},
+      {id:'p_r2_3',name:'需求信息审核'},
+      {id:'p_r2_4',name:'需求信息维护'},
+      {id:'p_r2_5',name:'研发需求池'}
+    ]},
+    {id:'p_r3',name:'专利成果分析'},
+    {id:'p_r4',name:'研发知识库'},
+    {id:'p_r5',name:'研发方案推演'},
+    {id:'p_r6',name:'智能配方侵权检测'},
+    {id:'p_r7',name:'专利申请前评估'},
+    {id:'p_r8',name:'商标与企业字号侵权监测'}
+  ]},
+  {id:'strategy',name:'战略研判',pages:[
+    {id:'p_s1',name:'产业与技术洞察'},
+    {id:'p_s2',name:'市场风险监控'},
+    {id:'p_s3',name:'市场机遇识别'},
+    {id:'p_s4',name:'政策监控'},
+    {id:'p_s5',name:'竞对市场动作跟踪'},
+    {id:'p_s6',name:'主题研究报告'},
+    {id:'p_s7',name:'临时性研究报告'},
+    {id:'p_s8',name:'技术简报'}
+  ]},
+  {id:'solution',name:'解决方案',pages:[
+    {id:'p_sl1',name:'场景化案例库'},
+    {id:'p_sl2',name:'场景化案例上传记录'},
+    {id:'p_sl3',name:'客诉案例库'}
+  ]},
+  /* ─── 产业服务平台（对外赋能；功能复用自分析平台）─── */
+  {id:'svc_rnd',name:'研发服务',pages:[
+    {id:'svc_r1',name:'研发方案推演'},
+    {id:'svc_r2',name:'商标与企业字号侵权监测'},
+    {id:'svc_r3',name:'智能配方侵权检测'},
+    {id:'svc_r4',name:'专利申请前评估'}
+  ]},
+  {id:'svc_strategy',name:'战略分析',pages:[
+    {id:'svc_s1',name:'主题研究报告'},
+    {id:'svc_s2',name:'临时性研究报告'},
+    {id:'svc_s3',name:'技术简报'}
+  ]},
+  {id:'svc_solution',name:'解决方案',pages:[
+    {id:'svc_sl1',name:'场景化案例库'},
+    {id:'svc_sl2',name:'场景化案例上传记录'},
+    {id:'svc_sl3',name:'客诉案例库'}
+  ]},
+  /* ─── 工作台 ─── */
+  {id:'msg',name:'消息中心',pages:[
+    {id:'msg_1',name:'消息提醒'},
+    {id:'msg_2',name:'消息订阅设置'},
+    {id:'msg_3',name:'待处理任务提醒'}
+  ]},
+  {id:'datasrv',name:'数据维护',pages:[
+    {id:'ds_1',name:'研发投入信息'},
+    {id:'ds_2',name:'月度出口数据维护'}
+  ]},
+  /* ─── 系统管理 ─── */
+  {id:'intfmgmt',name:'技术简报接口管理',pages:[]},
+  {id:'authmgmt',name:'账户权限配置管理',pages:[
+    {id:'am_1',name:'功能管理'},
+    {id:'am_2',name:'组织架构'},
+    {id:'am_3',name:'角色管理'},
+    {id:'am_4',name:'账号管理'}
+  ]},
+  {id:'oplog',name:'操作日志',pages:[]},
+  /* ─── 个人中心 ─── */
+  {id:'profile',name:'个人中心',pages:[
+    {id:'pf_1',name:'账户信息'}
+  ]}
+];
+
+/* 递归把所有页面（含 subs）拍平成 ALLPG，供 部门/角色 权限分配复用查找 */
+function _flat(p,modId,acc){
+  acc.push({...p,modId});
+  if(p.subs)p.subs.forEach(s=>_flat(s,modId,acc));
+}
+const ALLPG=[];MODS.forEach(m=>m.pages.forEach(p=>_flat(p,m.id,ALLPG)));
+
+/* FE 默认全开，递归覆盖所有节点 */
+function _initFE(item){FE[item.id]=true;(item.subs||[]).forEach(_initFE);}
+let FE={};MODS.forEach(m=>{FE[m.id]=true;m.pages.forEach(_initFE);});
 
 let depts=[
   {id:'d0',name:'蓝山屯河集团',parent:null,desc:'集团总部',perms:{}},
-  {id:'d1',name:'管理层',parent:'d0',desc:'企业高层管理，统筹全局决策',perms:{cockpit:['p_c1','p_c2'],chain:['p_ch1','p_ch2'],customer:['p_cu1','p_cu2','p_cu3'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6'],rnd:['p_r1','p_r5'],solution:['p_sl1'],profile:['p_pf1','p_pf2','p_pf3']}},
-  {id:'d2',name:'研究院',parent:'d0',desc:'负责产品研发与技术创新',perms:{cockpit:['p_c1','p_c2'],rnd:['p_r1','p_r2','p_r3','p_r4','p_r5','p_r6'],chain:['p_ch1','p_ch2'],strategy:['p_s1','p_s6'],solution:['p_sl1','p_sl2'],infomgmt:['p_i1'],profile:['p_pf1','p_pf2','p_pf3']}},
-  {id:'d3',name:'战略发展部',parent:'d0',desc:'负责战略规划与竞争情报分析',perms:{cockpit:['p_c1','p_c2'],chain:['p_ch1','p_ch2'],customer:['p_cu1','p_cu2'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6'],profile:['p_pf1','p_pf2','p_pf3']}},
-  {id:'d4',name:'法务部',parent:'d0',desc:'负责法律合规与知识产权保护',perms:{cockpit:['p_c1'],rnd:['p_r3','p_r4','p_r5'],strategy:['p_s4'],infomgmt:['p_i2'],profile:['p_pf1','p_pf2','p_pf3']}},
-  {id:'d5',name:'茵创公司',parent:'d0',desc:'旗下子公司，专注生物降解材料研发',perms:{cockpit:['p_c1','p_c2'],customer:['p_cu1','p_cu3','p_cu4','p_cu5'],compete:['p_co1','p_co3'],solution:['p_sl1','p_sl2','p_sl3'],infomgmt:['p_i2','p_i4'],profile:['p_pf1','p_pf2','p_pf3']}},
-  {id:'d6',name:'聚酯公司',parent:'d0',desc:'旗下子公司，专注聚酯材料生产',perms:{cockpit:['p_c1','p_c2'],chain:['p_ch1'],customer:['p_cu1','p_cu3'],compete:['p_co1','p_co3','p_co4'],solution:['p_sl1'],infomgmt:['p_i3'],profile:['p_pf1','p_pf2','p_pf3']}},
-  {id:'d7',name:'营销中心',parent:'d0',desc:'负责市场开拓与客户管理',perms:{cockpit:['p_c1','p_c2'],customer:['p_cu1','p_cu2','p_cu3','p_cu4','p_cu5'],compete:['p_co1','p_co3','p_co4'],solution:['p_sl1','p_sl2','p_sl3'],infomgmt:['p_i2','p_i4'],profile:['p_pf1','p_pf2','p_pf3']}}
+  {id:'d1',name:'管理层',parent:'d0',desc:'企业高层管理，统筹全局决策',perms:{cockpit:['p_c1','p_c2','p_c3'],chain:['p_ch1','p_ch2'],customer:['p_cu1','p_cu2','p_cu3'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6'],rnd:['p_r1','p_r3'],solution:['p_sl1'],msg:['msg_1','msg_3'],profile:['pf_1']}},
+  {id:'d2',name:'研究院',parent:'d0',desc:'负责产品研发与技术创新',perms:{cockpit:['p_c1','p_c2'],rnd:['p_r1','p_r2','p_r3','p_r4','p_r5','p_r6','p_r7','p_r8'],chain:['p_ch1','p_ch2'],strategy:['p_s1','p_s6','p_s8'],solution:['p_sl1','p_sl2'],msg:['msg_1','msg_2','msg_3'],datasrv:['ds_1'],profile:['pf_1']}},
+  {id:'d3',name:'战略发展部',parent:'d0',desc:'负责战略规划与竞争情报分析',perms:{cockpit:['p_c1','p_c2','p_c3'],chain:['p_ch1','p_ch2'],customer:['p_cu1','p_cu2'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6','p_s7','p_s8'],msg:['msg_1','msg_2','msg_3'],profile:['pf_1']}},
+  {id:'d4',name:'法务部',parent:'d0',desc:'负责法律合规与知识产权保护',perms:{cockpit:['p_c2'],rnd:['p_r3','p_r6','p_r7','p_r8'],strategy:['p_s4'],customer:['p_cu6'],msg:['msg_1'],profile:['pf_1']}},
+  {id:'d5',name:'茵创公司',parent:'d0',desc:'旗下子公司，专注生物降解材料研发',perms:{cockpit:['p_c1','p_c2'],customer:['p_cu1','p_cu3','p_cu4','p_cu5','p_cu6'],compete:['p_co1','p_co3'],solution:['p_sl1','p_sl2','p_sl3'],msg:['msg_1','msg_2','msg_3'],datasrv:['ds_2'],profile:['pf_1']}},
+  {id:'d6',name:'聚酯公司',parent:'d0',desc:'旗下子公司，专注聚酯材料生产',perms:{cockpit:['p_c1','p_c2'],chain:['p_ch1'],customer:['p_cu1','p_cu3'],compete:['p_co1','p_co3','p_co4'],solution:['p_sl1'],datasrv:['ds_1','ds_2'],msg:['msg_1','msg_3'],profile:['pf_1']}},
+  {id:'d7',name:'营销中心',parent:'d0',desc:'负责市场开拓与客户管理',perms:{cockpit:['p_c1','p_c2','p_c3'],customer:['p_cu1','p_cu2','p_cu3','p_cu4','p_cu5','p_cu6'],compete:['p_co1','p_co3','p_co4'],solution:['p_sl1','p_sl2','p_sl3'],msg:['msg_1','msg_2','msg_3'],profile:['pf_1']}}
 ];
 
 const COLORS=['p','t','c','a','g','b'];let rci=0;
 let roles=[
   {id:'r0',name:'平台管理员',dept:'d0',col:'p',desc:'全平台最高权限',w:100,perms:{}},
-  {id:'r1',name:'总经理',dept:'d1',col:'p',desc:'管理层最高决策者',w:95,perms:{cockpit:['p_c1','p_c2'],chain:['p_ch1','p_ch2'],customer:['p_cu1','p_cu2','p_cu3'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6'],rnd:['p_r1','p_r5'],solution:['p_sl1'],profile:['p_pf1','p_pf2','p_pf3']}},
-  {id:'r2',name:'研发总监',dept:'d2',col:'t',desc:'统筹研发方向与知识产权',w:80,perms:{cockpit:['p_c1','p_c2'],rnd:['p_r1','p_r2','p_r3','p_r4','p_r5','p_r6'],chain:['p_ch1','p_ch2'],strategy:['p_s1','p_s6'],profile:['p_pf1','p_pf2','p_pf3']}},
-  {id:'r3',name:'研发工程师',dept:'d2',col:'t',desc:'负责技术研发与专利分析',w:55,perms:{rnd:['p_r1','p_r2','p_r5','p_r6'],cockpit:['p_c1'],profile:['p_pf1','p_pf3']}},
-  {id:'r4',name:'战略分析师',dept:'d3',col:'a',desc:'市场与竞争情报分析',w:65,perms:{strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],cockpit:['p_c1','p_c2'],profile:['p_pf1','p_pf2','p_pf3']}},
-  {id:'r5',name:'知识产权专员',dept:'d4',col:'g',desc:'专利申请与侵权风险管控',w:50,perms:{rnd:['p_r3','p_r4','p_r5'],strategy:['p_s4'],profile:['p_pf1','p_pf2','p_pf3']}},
-  {id:'r6',name:'市场专员',dept:'d7',col:'c',desc:'负责市场调研与客户开拓',w:45,perms:{customer:['p_cu1','p_cu3','p_cu5'],compete:['p_co1'],solution:['p_sl1'],cockpit:['p_c1'],profile:['p_pf1','p_pf3']}}
+  {id:'r1',name:'总经理',dept:'d1',col:'p',desc:'管理层最高决策者',w:95,perms:{cockpit:['p_c1','p_c2','p_c3'],chain:['p_ch1','p_ch2'],customer:['p_cu1','p_cu2','p_cu3'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6'],rnd:['p_r1','p_r3'],solution:['p_sl1'],msg:['msg_1','msg_3'],profile:['pf_1']}},
+  {id:'r2',name:'研发总监',dept:'d2',col:'t',desc:'统筹研发方向与知识产权',w:80,perms:{cockpit:['p_c1','p_c2'],rnd:['p_r1','p_r2','p_r3','p_r4','p_r5','p_r6','p_r7','p_r8'],chain:['p_ch1','p_ch2'],strategy:['p_s1','p_s6','p_s8'],msg:['msg_1','msg_2','msg_3'],profile:['pf_1']}},
+  {id:'r3',name:'研发工程师',dept:'d2',col:'t',desc:'负责技术研发与专利分析',w:55,perms:{rnd:['p_r1','p_r2','p_r5'],cockpit:['p_c2'],msg:['msg_1'],profile:['pf_1']}},
+  {id:'r4',name:'战略分析师',dept:'d3',col:'a',desc:'市场与竞争情报分析',w:65,perms:{strategy:['p_s1','p_s2','p_s3','p_s4','p_s5','p_s6','p_s7','p_s8'],compete:['p_co1','p_co2','p_co3','p_co4','p_co5'],cockpit:['p_c1','p_c2'],msg:['msg_1','msg_2'],profile:['pf_1']}},
+  {id:'r5',name:'知识产权专员',dept:'d4',col:'g',desc:'专利申请与侵权风险管控',w:50,perms:{rnd:['p_r6','p_r7','p_r8'],strategy:['p_s4'],msg:['msg_1'],profile:['pf_1']}},
+  {id:'r6',name:'市场专员',dept:'d7',col:'c',desc:'负责市场调研与客户开拓',w:45,perms:{customer:['p_cu1','p_cu3','p_cu5','p_cu6'],compete:['p_co1'],solution:['p_sl1'],cockpit:['p_c2'],msg:['msg_1'],profile:['pf_1']}}
 ];
 
 let accounts=[
@@ -284,12 +454,16 @@ function goTab(t){
 
 function rSB(){
   const sb=document.getElementById('SB');
+  const body=document.querySelector('.body');
+  /* 功能管理 tab 不需要左侧栏，整页通栏展示三大子平台 */
   if(curTab==='func'){
-    sb.innerHTML='<div class="sb-lbl">功能模块</div>'+MODS.map(m=>{
-      const cnt=m.pages.filter(p=>FE[p.id]&&FE[m.id]).length;
-      return`<div class="sn${curFuncMod===m.id?' on':''}" onclick="selFM('${m.id}')"><span class="sn-tog">&nbsp;</span><span style="flex:1">${m.name}</span><span style="font-size:10px;color:var(--text3)">${cnt}/${m.pages.length}</span></div>`;
-    }).join('')+'<div class="sb-foot"></div>';return;
+    sb.style.display='none';
+    body.style.gridTemplateColumns='1fr';
+    sb.innerHTML='';
+    return;
   }
+  sb.style.display='';
+  body.style.gridTemplateColumns='var(--sidebar-w) 1fr';
   if(curTab==='org'){
     sb.innerHTML='<div class="sb-lbl">组织架构</div>'+rTree('org',null,0)+`<div class="sb-add"><button class="btn btn-g" style="width:100%;justify-content:center;font-size:11.5px;color:var(--text2)" onclick="om('dept')">+ 新增部门</button></div><div class="sb-foot"></div>`;return;
   }
@@ -333,17 +507,47 @@ function rMain(){
 
 function rFunc(){
   const el=document.getElementById('p-func');
-  let h=`<div class="ph"><div><div class="ph-t">功能管理</div><div class="ph-s">启用或停用平台功能模块及具体页面，停用后对所有用户不可见</div></div></div><div class="sec"><div class="mg">`;
-  MODS.forEach(m=>{
-    const mon=FE[m.id];const enC=m.pages.filter(p=>FE[p.id]).length;
-    h+=`<div class="mmod" id="fs-${m.id}"><div class="mmod-h"><input class="ck" type="checkbox" ${mon?'checked':''} onchange="togMod('${m.id}',this.checked)"><span style="flex:1">${m.name}</span><span style="font-size:10.5px;color:var(--text3);margin-right:5px">${enC}/${m.pages.length} 已启用</span><span class="tag ${mon?'tag-on':'tag-off'}">${mon?'启用':'停用'}</span></div><div class="mmod-pages">`;
-    m.pages.forEach(p=>{const pon=FE[p.id]&&mon;h+=`<div class="mpage" style="${!mon?'opacity:.4;pointer-events:none':''}"><input class="ck" type="checkbox" ${pon?'checked':''} ${!mon?'disabled':''} onchange="togPg('${p.id}',this.checked)"><span style="flex:1">${p.name}</span><span class="tag ${pon?'tag-on':'tag-off'}" style="font-size:10px">${pon?'启用':'停用'}</span></div>`;});
-    h+='</div></div>';
+  let h=`<div class="ph"><div><div class="ph-t">功能管理</div><div class="ph-s">按三大子平台 + 工作台 / 系统管理 / 个人中心 分组管理平台功能，停用后对所有用户不可见</div></div></div>`;
+  /* 平台数序号 1/2/3，其他类用首字标识 */
+  let platIdx=0;
+  const otherLbl={'g_wb':'工','g_sys':'系','g_user':'个'};
+  PLATFORMS.forEach(plat=>{
+    const isPlat=plat.type==='platform';
+    const idx= isPlat ? String(++platIdx) : (otherLbl[plat.id]||'·');
+    const idxStyle = isPlat ? '' : 'background:var(--text2)';
+    h+=`<div class="mp-sec">
+      <div class="mp-sec-h">
+        <div class="mp-sec-idx" style="${idxStyle}">${idx}</div>
+        <div class="mp-sec-meta">
+          <div class="mp-sec-t">${plat.name}</div>
+          <div class="mp-sec-d">${plat.desc}</div>
+        </div>
+      </div>
+      <div class="mp-sec-body"><div class="mg">`;
+    plat.mods.forEach(mid=>{const m=MODS.find(x=>x.id===mid);if(m)h+=renderMod(m);});
+    h+=`</div></div></div>`;
   });
-  h+='</div></div>';el.innerHTML=h;
+  el.innerHTML=h;
 }
-function togMod(id,on){FE[id]=on;rFunc();rSB();}
-function togPg(id,on){FE[id]=on;rFunc();rSB();}
+
+function renderMod(m){
+  const mon=FE[m.id];
+  let h=`<div class="mmod"><div class="mmod-h"><input class="ck" type="checkbox" ${mon?'checked':''} onchange="togItem('${m.id}',this.checked)"><span style="flex:1">${m.name}</span><span class="tag ${mon?'tag-on':'tag-off'}">${mon?'启用':'停用'}</span></div><div class="mmod-pages">`;
+  (m.pages||[]).forEach(p=>{h+=renderPage(p,mon,1);});
+  h+='</div></div>';
+  return h;
+}
+
+function renderPage(p,parentOn,depth){
+  const on=FE[p.id]&&parentOn;
+  const cls=depth===1?'mpage':(depth===2?'msub':'msub2');
+  const disabled=!parentOn;
+  let h=`<div class="${cls}" style="${disabled?'opacity:.4;pointer-events:none':''}"><input class="ck" type="checkbox" ${on?'checked':''} ${disabled?'disabled':''} onchange="togItem('${p.id}',this.checked)"><span style="flex:1">${p.name}</span><span class="tag ${on?'tag-on':'tag-off'}" style="font-size:10px">${on?'启用':'停用'}</span></div>`;
+  if(p.subs)p.subs.forEach(s=>{h+=renderPage(s,on,depth+1);});
+  return h;
+}
+
+function togItem(id,on){FE[id]=on;rFunc();}
 
 function rOrg(){
   const el=document.getElementById('p-org');
@@ -430,7 +634,7 @@ function rRole(){
   });
   h+=`</div><div class="role-detail-pane">`;
 
-  h+=`<div class="ph" style="padding:14px 18px 10px"><div><div class="ph-t">${r.name}</div><div class="ph-s">所属：${dn(r.dept)} · ${r.desc} · ${rAccts.length} 人持有</div></div><div style="display:flex;gap:6px"><button class="btn btn-d" onclick="delRole('${r.id}')">删除</button></div></div>`;
+  h+=`<div class="ph" style="padding:14px 18px 10px"><div><div class="ph-t">${r.name}</div><div class="ph-s">所属：${dn(r.dept)} · ${r.desc} · ${rAccts.length} 人持有</div></div><div style="display:flex;gap:6px"><button class="btn" onclick="om('role','${r.id}')">编辑</button><button class="btn btn-d" onclick="delRole('${r.id}')">删除</button></div></div>`;
   h+=`<div class="sec"><div class="sec-t"><span>权限配置 <span style="font-size:10.5px;color:var(--text3);font-weight:400">限「${dn(r.dept)}」范围内</span></span><button class="btn btn-p" onclick="saveRPerms('${r.id}')">保存</button></div>
   <div class="notice">仅显示所属部门已授权的功能页面，超出部门范围的不可选择</div><div class="mg">`;
   MODS.forEach(m=>{
@@ -489,6 +693,58 @@ function rAcct(){
 function togAS(id){const a=accounts.find(x=>x.id===id);if(a)a.status=a.status==='active'?'disabled':'active';rAcct();}
 function delAcct(id){accounts=accounts.filter(a=>a.id!==id);rAcct();}
 
+/* ──── 密码辅助函数（用于账户编辑 modal 内的密码字段）──── */
+function genRandomPwd(){
+  const U='ABCDEFGHJKLMNPQRSTUVWXYZ',L='abcdefghjkmnpqrstuvwxyz',D='23456789',S='!@#$%^&*-+?';
+  const pick=(s,n)=>{let r='';for(let i=0;i<n;i++)r+=s.charAt(Math.floor(Math.random()*s.length));return r;};
+  const arr=(pick(U,2)+pick(L,4)+pick(D,2)+pick(S,2)).split('');
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  document.getElementById('f-pwd-new').value=arr.join('');
+  checkPwd();
+}
+function validatePwd(pwd,account){
+  if(!pwd)return '请输入密码';
+  if(pwd.length<8)return '密码至少 8 位';
+  let kinds=0;
+  if(/[A-Z]/.test(pwd))kinds++;
+  if(/[a-z]/.test(pwd))kinds++;
+  if(/\d/.test(pwd))kinds++;
+  if(/[^A-Za-z0-9]/.test(pwd))kinds++;
+  if(kinds<3)return '必须包含大小写字母、数字、特殊字符中至少 3 类';
+  if(/^(.)\1+$/.test(pwd))return '不能为单一重复字符';
+  if(/0123|1234|2345|3456|4567|5678|6789|abcd|qwer/i.test(pwd))return '不能为连续字符';
+  if(account){
+    if(pwd.toLowerCase().includes(account.login.toLowerCase()))return '不能包含登录账号';
+    if(account.no&&pwd.includes(account.no))return '不能包含工号';
+    if(pwd.includes(account.name))return '不能包含姓名';
+  }
+  const weak=['12345678','password','admin123','lsth2025','letmein','qwerty','abc12345','password1','lanshan'];
+  if(weak.includes(pwd.toLowerCase()))return '不能使用常见弱密码';
+  return null;
+}
+function checkPwd(){
+  const pwd=document.getElementById('f-pwd-new').value;
+  const hint=document.getElementById('f-pwd-hint');
+  const force=document.getElementById('f-pwd-force');
+  const opts=document.getElementById('f-pwd-opts');
+  /* 用当前 modal 字段构造临时 account 上下文做校验 */
+  const ctx={
+    name: document.getElementById('f-an').value.trim(),
+    login: document.getElementById('f-al').value.trim(),
+    no: document.getElementById('f-ano').value.trim()
+  };
+  if(!pwd){
+    if(edAcct){hint.textContent='留空表示不修改密码';opts.style.opacity='.45';force.disabled=true;}
+    else     {hint.textContent='请设置初始密码（至少 8 位，含大小写字母、数字、特殊字符中的 3 类）';opts.style.opacity='1';force.disabled=false;}
+    hint.style.color='var(--text3)';
+    return;
+  }
+  opts.style.opacity='1';force.disabled=false;
+  const err=validatePwd(pwd,ctx);
+  if(err){hint.textContent='✗ '+err;hint.style.color='var(--danger)';}
+  else   {hint.textContent='✓ 符合密码强度要求';hint.style.color='var(--success)';}
+}
+
 function om(type,eid){
   edDept=null;edRole=null;edAcct=null;
   if(type==='dept'){
@@ -512,6 +768,18 @@ function om(type,eid){
     const fd=flatD();const ds=document.getElementById('f-adept');
     ds.innerHTML=fd.map(d=>`<option value="${d.id}">${'　'.repeat(d.dep)}${d.name}</option>`).join('');
     document.getElementById('mh-acct').textContent=eid?'编辑账户':'新建账户';
+    /* 密码字段：新建必填，编辑选填（留空 = 不改密）*/
+    const pwdLabel=document.getElementById('f-pwd-label');
+    const pwdInput=document.getElementById('f-pwd-new');
+    pwdInput.value='';
+    document.getElementById('f-pwd-force').checked=true;
+    if(eid){
+      pwdLabel.innerHTML='重置密码';
+      pwdInput.placeholder='留空表示不修改密码';
+    } else {
+      pwdLabel.innerHTML='登录密码 <span class="req">*</span>';
+      pwdInput.placeholder='8 位以上，含大小写/数字/符号 ≥3 类';
+    }
     if(eid){
       const a=accounts.find(x=>x.id===eid);
       document.getElementById('f-an').value=a.name;document.getElementById('f-al').value=a.login;
@@ -524,6 +792,7 @@ function om(type,eid){
       if(curAcctDept&&curAcctDept!=='all')ds.value=curAcctDept;
       refreshAR(null);document.querySelector('input[name="ast"][value="active"]').checked=true;
     }
+    checkPwd();
   }
   document.getElementById('ov-'+type).classList.add('on');
 }
@@ -578,9 +847,40 @@ function saveAcct(){
   const role=document.getElementById('f-arole').value||null;
   const note=document.getElementById('f-anote').value.trim();
   const status=document.querySelector('input[name="ast"]:checked')?.value||'active';
-  if(edAcct){const a=accounts.find(x=>x.id===edAcct);if(a)Object.assign(a,{name,login,no,phone,dept,role,note,status});}
-  else accounts.push({id:'a'+Date.now(),name,login,no,phone,dept,role,note,status});
+  const pwd=document.getElementById('f-pwd-new').value;
+  const force=document.getElementById('f-pwd-force').checked;
+  /* 密码校验：新建必填、编辑选填 */
+  if(!edAcct && !pwd){
+    document.getElementById('f-pwd-hint').textContent='✗ 新建账户必须设置初始密码';
+    document.getElementById('f-pwd-hint').style.color='var(--danger)';
+    return;
+  }
+  if(pwd){
+    const err=validatePwd(pwd,{name,login,no});
+    if(err){
+      document.getElementById('f-pwd-hint').textContent='✗ '+err;
+      document.getElementById('f-pwd-hint').style.color='var(--danger)';
+      return;
+    }
+  }
+  let target;
+  if(edAcct){
+    target=accounts.find(x=>x.id===edAcct);
+    if(target)Object.assign(target,{name,login,no,phone,dept,role,note,status});
+  } else {
+    target={id:'a'+Date.now(),name,login,no,phone,dept,role,note,status};
+    accounts.push(target);
+  }
+  /* 密码处理：实际系统只存哈希，原型只打标 */
+  if(pwd && target){
+    target.mustChangePwd=force;
+    target.lastPwdReset=new Date().toISOString();
+  }
   cm('acct');rAcct();
+  if(pwd){
+    const action=edAcct?'已为账户「'+name+'」重置密码':'新账户「'+name+'」已创建并设置初始密码';
+    alert(action+(force?'，用户下次登录时需强制修改密码':'')+'。');
+  }
 }
 
 rSB();rMain();
