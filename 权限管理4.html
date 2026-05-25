@@ -279,12 +279,8 @@ const MODS=[
     ]}
   ]},
   {id:'customer',name:'客情洞察',pages:[
-    {id:'p_cu1',name:'国内市场分析',subs:[
-      {id:'p_cu1_1',name:'市场分析'}
-    ]},
-    {id:'p_cu2',name:'海外市场分析',subs:[
-      {id:'p_cu2_1',name:'找海外客户'}
-    ]},
+    {id:'p_cu1',name:'国内市场分析'},
+    {id:'p_cu2',name:'海外市场分析'},
     {id:'p_cu3',name:'招投标商机查询'},
     {id:'p_cu4',name:'企业监控'},
     {id:'p_cu5',name:'客户反馈与舆情分析',subs:[
@@ -689,7 +685,17 @@ function rAcct(){
   if(pv&&document.getElementById('acct-si'))document.getElementById('acct-si').value=pv;
 }
 function togAS(id){const a=accounts.find(x=>x.id===id);if(a)a.status=a.status==='active'?'disabled':'active';rAcct();}
-function delAcct(id){accounts=accounts.filter(a=>a.id!==id);rAcct();}
+function delAcct(id){
+  const a=accounts.find(x=>x.id===id);if(!a)return;
+  const r=R(a.role);
+  const msg='确认删除账户「'+a.name+'（'+a.login+'）」？\n\n'
+    +'• 所属部门：'+dn(a.dept)+'\n'
+    +(r?'• 持有角色：'+r.name+'\n':'')
+    +'\n删除后该账户的登录权限、操作日志关联将一并清除，且无法恢复。';
+  if(!confirm(msg))return;
+  accounts=accounts.filter(x=>x.id!==id);
+  rAcct();
+}
 
 /* ──── 密码辅助函数（用于账户编辑 modal 内的密码字段）──── */
 const DEFAULT_PWD='Lsth@1234';
