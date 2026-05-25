@@ -210,7 +210,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
     <div class="fr"><label class="fl" id="f-pwd-label">登录密码 <span class="req">*</span></label>
       <div style="display:flex;gap:6px">
         <input class="fi" id="f-pwd-new" type="text" placeholder="8 位以上，含大小写/数字/符号 ≥3 类" style="flex:1" oninput="checkPwd()">
-        <button type="button" class="btn" onclick="genRandomPwd()">生成随机</button>
+        <button type="button" class="btn" onclick="fillDefaultPwd()" title="填入默认初始密码 Lsth@1234">默认密码</button>
       </div>
       <div class="hint" id="f-pwd-hint">至少 8 位，含大小写字母、数字、特殊字符中的 3 类；不能包含登录账号 / 工号 / 常见弱密码</div>
     </div>
@@ -280,12 +280,10 @@ const MODS=[
   ]},
   {id:'customer',name:'客情洞察',pages:[
     {id:'p_cu1',name:'国内市场分析',subs:[
-      {id:'p_cu1_1',name:'市场分析'},
-      {id:'p_cu1_2',name:'企业详情'}
+      {id:'p_cu1_1',name:'市场分析'}
     ]},
     {id:'p_cu2',name:'海外市场分析',subs:[
-      {id:'p_cu2_1',name:'找海外客户'},
-      {id:'p_cu2_2',name:'客户详情'}
+      {id:'p_cu2_1',name:'找海外客户'}
     ]},
     {id:'p_cu3',name:'招投标商机查询'},
     {id:'p_cu4',name:'企业监控'},
@@ -694,12 +692,9 @@ function togAS(id){const a=accounts.find(x=>x.id===id);if(a)a.status=a.status===
 function delAcct(id){accounts=accounts.filter(a=>a.id!==id);rAcct();}
 
 /* ──── 密码辅助函数（用于账户编辑 modal 内的密码字段）──── */
-function genRandomPwd(){
-  const U='ABCDEFGHJKLMNPQRSTUVWXYZ',L='abcdefghjkmnpqrstuvwxyz',D='23456789',S='!@#$%^&*-+?';
-  const pick=(s,n)=>{let r='';for(let i=0;i<n;i++)r+=s.charAt(Math.floor(Math.random()*s.length));return r;};
-  const arr=(pick(U,2)+pick(L,4)+pick(D,2)+pick(S,2)).split('');
-  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
-  document.getElementById('f-pwd-new').value=arr.join('');
+const DEFAULT_PWD='Lsth@1234';
+function fillDefaultPwd(){
+  document.getElementById('f-pwd-new').value=DEFAULT_PWD;
   checkPwd();
 }
 function validatePwd(pwd,account){
@@ -712,7 +707,6 @@ function validatePwd(pwd,account){
   if(/[^A-Za-z0-9]/.test(pwd))kinds++;
   if(kinds<3)return '必须包含大小写字母、数字、特殊字符中至少 3 类';
   if(/^(.)\1+$/.test(pwd))return '不能为单一重复字符';
-  if(/0123|1234|2345|3456|4567|5678|6789|abcd|qwer/i.test(pwd))return '不能为连续字符';
   if(account){
     if(pwd.toLowerCase().includes(account.login.toLowerCase()))return '不能包含登录账号';
     if(account.no&&pwd.includes(account.no))return '不能包含工号';
